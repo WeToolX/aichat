@@ -96,7 +96,7 @@ return array(
     'roles' => array(
         // 超级用户角色值
         'super' => 1,
-        // 普通用户角色值
+        // 普通用户角色值/
         'user' => 2,
     ),
 );
