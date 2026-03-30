@@ -14,6 +14,9 @@ class AdminMomoService
         $userId = (int) $user['id'];
         $momoid = trim((string) ($filters['momoid'] ?? ''));
         $search = trim((string) ($filters['search'] ?? ''));
+        $page = max(1, (int) ($filters['page'] ?? 1));
+        $perPage = max(1, min(100, (int) ($filters['per_page'] ?? 20)));
+        $offset = ($page - 1) * $perPage;
 
         $where = array('user_id = :user_id');
         $params = array(':user_id' => $userId);
@@ -29,13 +32,19 @@ class AdminMomoService
             $params[':search_send_momoid'] = '%' . $search . '%';
         }
 
+        $whereSql = implode(' AND ', $where);
+        $total = (int) ((MomoUser::queryOne(
+            'SELECT COUNT(*) AS total FROM momo_users WHERE ' . $whereSql,
+            $params
+        )['total'] ?? 0));
+
         $items = MomoUser::queryAll(
-            'SELECT * FROM momo_users WHERE ' . implode(' AND ', $where) . ' ORDER BY updated_at DESC, id DESC',
+            'SELECT * FROM momo_users WHERE ' . $whereSql . ' ORDER BY is_online DESC, updated_at DESC, id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
             $params
         );
 
         $groups = MomoUser::queryAll(
-            'SELECT momoid, COUNT(*) AS total_count, SUM(is_block = 1) AS blocked_count, SUM(is_friend = 1) AS friend_count, SUM(is_online = 1) AS online_count FROM momo_users WHERE user_id = :user_id GROUP BY momoid ORDER BY MAX(updated_at) DESC',
+            'SELECT momoid, COUNT(*) AS total_count, SUM(is_block = 1) AS blocked_count, SUM(is_friend = 1) AS friend_count, SUM(is_online = 1) AS online_count FROM momo_users WHERE user_id = :user_id GROUP BY momoid ORDER BY online_count DESC, MAX(updated_at) DESC',
             array(':user_id' => $userId)
         );
 
@@ -48,6 +57,12 @@ class AdminMomoService
             ),
             'groups' => $groups,
             'items' => $items,
+            'pagination' => array(
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'total_pages' => $total > 0 ? (int) ceil($total / $perPage) : 1,
+            ),
         );
     }
 

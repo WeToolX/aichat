@@ -38,6 +38,9 @@ function admin_shell_start(array $ctx, $title, $pageTitle, $pageSubtitle, $extra
 </head>
 <body>
     <header class="header">
+        <button type="button" class="sidebar-toggle sidebar-toggle-open" id="sidebar-open-btn" aria-label="展开导航">
+            <span class="toggle-icon">☰</span>
+        </button>
         <a href="index.php" class="header-logo">
             <span>🔧</span>
             <span>后台管理系统</span>
@@ -49,7 +52,14 @@ function admin_shell_start(array $ctx, $title, $pageTitle, $pageSubtitle, $extra
     </header>
 
     <div class="container">
-        <aside class="sidebar">
+        <aside class="sidebar" id="admin-sidebar">
+            <div class="sidebar-head">
+                <span class="sidebar-head-title">导航</span>
+                <button type="button" class="sidebar-toggle sidebar-toggle-collapse" id="sidebar-collapse-btn" aria-label="收起导航">
+                    <span class="toggle-icon toggle-icon-collapse">◀</span>
+                    <span class="toggle-icon toggle-icon-expand">▶</span>
+                </button>
+            </div>
             <ul>
                 <li class="<?php echo $active === 'dashboard' ? 'active' : ''; ?>">
                     <a href="index.php">
@@ -126,6 +136,77 @@ function admin_shell_end(array $ctx, $extraScript = '')
     </div>
     <script>
         window.ADMIN_BOOTSTRAP = <?php echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+    </script>
+    <script>
+        (function () {
+            const storageKey = 'admin-sidebar-collapsed';
+            const body = document.body;
+            const openBtn = document.getElementById('sidebar-open-btn');
+            const collapseBtn = document.getElementById('sidebar-collapse-btn');
+
+            function isMobile() {
+                return window.innerWidth <= 768;
+            }
+
+            function setCollapsed(collapsed) {
+                body.classList.toggle('sidebar-collapsed', collapsed);
+                try {
+                    localStorage.setItem(storageKey, collapsed ? '1' : '0');
+                } catch (error) {}
+            }
+
+            function setOpen(open) {
+                body.classList.toggle('sidebar-open', open);
+            }
+
+            function syncResponsiveState() {
+                if (isMobile()) {
+                    setOpen(false);
+                    body.classList.remove('sidebar-collapsed');
+                    return;
+                }
+
+                try {
+                    setCollapsed(localStorage.getItem(storageKey) === '1');
+                } catch (error) {
+                    setCollapsed(false);
+                }
+            }
+
+            openBtn.addEventListener('click', function () {
+                if (isMobile()) {
+                    setOpen(!body.classList.contains('sidebar-open'));
+                    return;
+                }
+
+                setCollapsed(!body.classList.contains('sidebar-collapsed'));
+            });
+
+            collapseBtn.addEventListener('click', function () {
+                if (isMobile()) {
+                    setOpen(false);
+                    return;
+                }
+
+                setCollapsed(!body.classList.contains('sidebar-collapsed'));
+            });
+
+            window.addEventListener('resize', syncResponsiveState);
+            document.addEventListener('click', function (event) {
+                if (!isMobile() || !body.classList.contains('sidebar-open')) {
+                    return;
+                }
+
+                const sidebar = document.getElementById('admin-sidebar');
+                if (!sidebar || sidebar.contains(event.target) || openBtn.contains(event.target)) {
+                    return;
+                }
+
+                setOpen(false);
+            });
+
+            syncResponsiveState();
+        }());
     </script>
     <?php echo $extraScript; ?>
 </body>

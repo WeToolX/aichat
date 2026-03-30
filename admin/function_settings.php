@@ -69,6 +69,7 @@ $extraHead = <<<'HTML'
         border-radius: var(--border-radius);
         font: inherit;
     }
+    .conditional-fields.is-hidden { display: none; }
 
     .hint {
         color: var(--gray-dark);
@@ -102,7 +103,7 @@ admin_shell_start($ctx, '后台管理系统 - 功能设置', '⚙️ 功能设�
         <h2>附近人点赞</h2>
         <div class="settings-card-body">
             <div class="switch-row"><input id="nearby_like" type="checkbox"><label for="nearby_like">启用附近人点赞</label></div>
-            <div class="field-grid">
+            <div class="field-grid conditional-fields" id="nearby-like-fields">
                 <div class="field"><label for="nearby_like_count">点赞次数</label><input id="nearby_like_count" type="number" min="1"></div>
                 <div class="field"><label for="nearby_like_interval_min">最小间隔(秒)</label><input id="nearby_like_interval_min" type="number" min="1"></div>
                 <div class="field"><label for="nearby_like_interval_max">最大间隔(秒)</label><input id="nearby_like_interval_max" type="number" min="1"></div>
@@ -116,7 +117,7 @@ admin_shell_start($ctx, '后台管理系统 - 功能设置', '⚙️ 功能设�
         <h2>附近动态点赞</h2>
         <div class="settings-card-body">
             <div class="switch-row"><input id="feed_like" type="checkbox"><label for="feed_like">启用附近动态点赞</label></div>
-            <div class="field-grid">
+            <div class="field-grid conditional-fields" id="feed-like-fields">
                 <div class="field"><label for="feed_like_count">点赞次数</label><input id="feed_like_count" type="number" min="1"></div>
                 <div class="field"><label for="feed_like_interval_min">最小间隔(秒)</label><input id="feed_like_interval_min" type="number" min="1"></div>
                 <div class="field"><label for="feed_like_interval_max">最大间隔(秒)</label><input id="feed_like_interval_max" type="number" min="1"></div>
@@ -163,7 +164,11 @@ $extraScript = <<<'HTML'
         const nodes = {
             form: document.getElementById('settings-form'),
             message: document.getElementById('message-box'),
-            reload: document.getElementById('reload-btn')
+            reload: document.getElementById('reload-btn'),
+            nearbyLike: document.getElementById('nearby_like'),
+            nearbyFields: document.getElementById('nearby-like-fields'),
+            feedLike: document.getElementById('feed_like'),
+            feedFields: document.getElementById('feed-like-fields')
         };
 
         async function request(path, options = {}) {
@@ -207,6 +212,17 @@ $extraScript = <<<'HTML'
                     node.value = data[field] ?? '';
                 }
             });
+            updateVisibility();
+        }
+
+        function toggleSection(node, visible) {
+            if (!node) return;
+            node.classList.toggle('is-hidden', !visible);
+        }
+
+        function updateVisibility() {
+            toggleSection(nodes.nearbyFields, nodes.nearbyLike && nodes.nearbyLike.checked);
+            toggleSection(nodes.feedFields, nodes.feedLike && nodes.feedLike.checked);
         }
 
         function getPayload() {
@@ -267,6 +283,8 @@ $extraScript = <<<'HTML'
 
         nodes.form.addEventListener('submit', saveSettings);
         nodes.reload.addEventListener('click', () => loadSettings().catch((error) => showMessage('error', error.message)));
+        nodes.nearbyLike.addEventListener('change', updateVisibility);
+        nodes.feedLike.addEventListener('change', updateVisibility);
 
         loadSettings().catch((error) => showMessage('error', error.message));
     }());

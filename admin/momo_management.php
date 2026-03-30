@@ -29,6 +29,8 @@ $extraHead = <<<'HTML'
     .group-top, .momo-top { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: start; }
     .momo-name { font-weight: var(--font-weight-semibold); }
     .momo-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
+    .pagination-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
+    .pagination-actions { display: flex; gap: var(--spacing-sm); align-items: center; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag { display: inline-flex; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: var(--font-weight-medium); }
     .tag.online { background: rgba(74, 222, 128, 0.14); color: #166534; }
@@ -99,6 +101,13 @@ admin_shell_start($ctx, '后台管理系统 - 陌陌用户管理', '📱 陌陌�
             </div>
             <div>
                 <h3>会话明细</h3>
+                <div class="pagination-bar">
+                    <div id="pagination-summary" class="momo-meta">第 1 页</div>
+                    <div class="pagination-actions">
+                        <button type="button" class="btn btn-secondary" id="prev-page-btn">上一页</button>
+                        <button type="button" class="btn btn-secondary" id="next-page-btn">下一页</button>
+                    </div>
+                </div>
                 <div id="momo-list" class="momo-list"></div>
             </div>
         </div>
@@ -110,7 +119,7 @@ $extraScript = <<<'HTML'
     (function () {
         const boot = window.ADMIN_BOOTSTRAP || {};
         const token = boot.token || '';
-        const state = { data: { groups: [], items: [], summary: {} }, search: '' };
+        const state = { data: { groups: [], items: [], summary: {}, pagination: {} }, search: '', page: 1, perPage: 20 };
         const nodes = {
             message: document.getElementById('message-box'),
             form: document.getElementById('momo-form'),
@@ -129,7 +138,10 @@ $extraScript = <<<'HTML'
             friends: document.getElementById('sum-friends'),
             blocked: document.getElementById('sum-blocked'),
             online: document.getElementById('sum-online'),
-            reset: document.getElementById('reset-btn')
+            reset: document.getElementById('reset-btn'),
+            paginationSummary: document.getElementById('pagination-summary'),
+            prevPage: document.getElementById('prev-page-btn'),
+            nextPage: document.getElementById('next-page-btn')
         };
 
         async function request(path, options = {}) {
@@ -224,11 +236,21 @@ $extraScript = <<<'HTML'
                     </div>
                 </article>
             `).join('') : '<div class="empty-state">暂无会话数据</div>';
+
+            const pagination = state.data.pagination || {};
+            const page = Number(pagination.page || 1);
+            const totalPages = Number(pagination.total_pages || 1);
+            const total = Number(pagination.total || 0);
+            nodes.paginationSummary.textContent = `第 ${page} / ${totalPages} 页，共 ${total} 条`;
+            nodes.prevPage.disabled = page <= 1;
+            nodes.nextPage.disabled = page >= totalPages;
         }
 
         async function loadData() {
             const params = new URLSearchParams();
             if (state.search) params.set('search', state.search);
+            params.set('page', String(state.page));
+            params.set('per_page', String(state.perPage));
             state.data = await request(`../admin/momo?${params.toString()}`);
             render();
         }
@@ -281,6 +303,18 @@ $extraScript = <<<'HTML'
         nodes.reset.addEventListener('click', () => { clearMessage(); resetForm(); });
         nodes.search.addEventListener('input', (event) => {
             state.search = event.target.value.trim();
+            state.page = 1;
+            loadData().catch((error) => showMessage('error', error.message));
+        });
+        nodes.prevPage.addEventListener('click', () => {
+            if (state.page <= 1) return;
+            state.page -= 1;
+            loadData().catch((error) => showMessage('error', error.message));
+        });
+        nodes.nextPage.addEventListener('click', () => {
+            const totalPages = Number((state.data.pagination || {}).total_pages || 1);
+            if (state.page >= totalPages) return;
+            state.page += 1;
             loadData().catch((error) => showMessage('error', error.message));
         });
         document.addEventListener('click', (event) => {
