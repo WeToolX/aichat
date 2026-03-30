@@ -1,0 +1,225 @@
+/* 响应式设计 */
+
+/* 移动设备 */
+@media (max-width: 768px) {
+    /* 登录页面 */
+    .login-container {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    /* 后台页面 */
+    .header {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+    
+    .header h1 {
+        font-size: 18px;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        order: 2;
+    }
+    
+    .sidebar ul {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .sidebar ul li {
+        border-bottom: none;
+        border-right: 1px solid #34495e;
+        padding: 10px 15px;
+    }
+    
+    .main-content {
+        flex: 1;
+        padding: 15px;
+        order: 1;
+    }
+    
+    /* 文件管理 */
+    .file-upload-section,
+    .file-list-section,
+    .script-form-section,
+    .script-list-section,
+    .user-form-section,
+    .user-list-section {
+        padding: 15px;
+    }
+    
+    .file-table,
+    .script-table,
+    .user-table {
+        font-size: 14px;
+    }
+    
+    .file-table th,
+    .file-table td,
+    .script-table th,
+    .script-table td,
+    .user-table th,
+    .user-table td {
+        padding: 8px;
+    }
+    
+    .file-actions,
+    .script-actions,
+    .user-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .file-actions .btn,
+    .script-actions .btn,
+    .user-actions .btn {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    /* 统计卡片 */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 表单 */
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    .btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    /* 表格响应式处理 */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    /* 话术内容 */
+    .script-content {
+        max-width: 150px;
+    }
+}
+
+/* 平板设备 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 180px;
+    }
+    
+    .sidebar ul li {
+        padding: 12px 15px;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .file-content,
+    .script-content {
+        max-width: 200px;
+    }
+}
+
+/* 大屏幕设备 */
+@media (min-width: 1025px) {
+    .sidebar {
+        width: 220px;
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* 通用响应式样式 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* 确保所有容器都能正确响应 */
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 确保图片响应式 */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 确保表格响应式 */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+/* 确保按钮响应式 */
+.btn {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* 确保表单元素响应式 */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* 确保消息响应式 */
+.message {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.25rem;
+}

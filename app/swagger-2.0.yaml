@@ -1,0 +1,1067 @@
+swagger: '2.0'
+info:
+  title: Aichat API
+  version: '1.0.0'
+  description: |
+    当前项目新接口的 Swagger 2.0 文档。
+
+    说明：
+    - 所有接口统一走 `/api/...`
+    - 除 `/api/login` 外，其余接口默认需要 token
+    - 推荐使用 `Authorization: Bearer <token>`
+host: localhost
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: Auth
+    description: 登录认证
+  - name: Script
+    description: 话术与关键词
+  - name: Setting
+    description: 配置读取
+  - name: Momo
+    description: 陌陌业务
+  - name: Chat
+    description: 聊天相关
+  - name: Batch
+    description: 批量处理
+  - name: AI
+    description: AI 生成
+  - name: Download
+    description: 文件下载
+  - name: Presence
+    description: 在线状态
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: '格式：Bearer <token>'
+paths:
+  /api/login:
+    post:
+      tags:
+        - Auth
+      summary: 用户登录
+      description: 使用用户名和密码登录，成功后返回 token 和用户信息。
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                description: 登录用户名
+                example: admin
+              password:
+                type: string
+                description: 登录密码
+                example: password
+      responses:
+        '200':
+          description: 登录成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: 登录成功返回的访问令牌
+                      user:
+                        $ref: '#/definitions/User'
+        '401':
+          description: 登录失败
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/scripts:
+    post:
+      tags:
+        - Script
+      summary: 话术匹配
+      description: 根据话术名称精确匹配 scripts 表记录。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - action
+              - massage
+            properties:
+              action:
+                type: string
+                description: 固定为 match
+                example: match
+              massage:
+                type: string
+                description: 话术名称
+                example: AI设置
+      responses:
+        '200':
+          description: 匹配成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/Script'
+        '404':
+          description: 未找到匹配话术
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/keywords:
+    post:
+      tags:
+        - Script
+      summary: 关键词匹配
+      description: 检查输入内容是否命中关键词记录。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - action
+              - keywords
+            properties:
+              action:
+                type: string
+                description: 固定为 match
+                example: match
+              keywords:
+                type: string
+                description: 被检测的文本内容
+                example: 你好呀最近在吗
+      responses:
+        '200':
+          description: 匹配成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/Keyword'
+        '404':
+          description: 未找到匹配关键词
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/settings:
+    post:
+      tags:
+        - Setting
+      summary: 读取功能设置
+      description: |
+        按 action 读取用户配置。
+        支持：
+        get、auto_login、nearby_like、nearby_like_count、nearby_like_interval、
+        nearby_like_scroll、feed_like、feed_like_count、feed_like_interval、
+        feed_like_scroll、click_delay、send_delay、reply_delay、guide_after_messages
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - action
+            properties:
+              action:
+                type: string
+                description: 配置读取动作
+                example: get
+      responses:
+        '200':
+          description: 读取成功
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/momo:
+    post:
+      tags:
+        - Momo
+      summary: 陌陌主业务入口
+      description: |
+        统一处理陌陌会话的查询、更新、消息导入与拉黑。
+
+        action 支持：
+        - search: 查询或自动创建会话
+        - update: 更新会话状态与最后消息
+        - import_messages: 批量导入消息
+        - block: 拉黑或取消拉黑
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MomoRequest'
+      responses:
+        '200':
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/BaseResponse'
+        '201':
+          description: 查询时会话不存在并已自动创建
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/momo/batch_update:
+    post:
+      tags:
+        - Momo
+      summary: 批量导入陌陌消息
+      description: 按主账号 momoid 批量导入多个会话账号消息。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MomoBatchUpdateRequest'
+      responses:
+        '200':
+          description: 批量处理完成
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/MomoBatchUpdateResult'
+
+  /api/deepseek:
+    post:
+      tags:
+        - AI
+      summary: AI 话术生成
+      description: 基于 AI 设置、时间信息和聊天上下文调用 DeepSeek 生成回复。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              prompt:
+                type: string
+                description: 当前待回复文本，可为空
+              history:
+                type: array
+                description: 前端传入的历史消息数组
+                items:
+                  $ref: '#/definitions/HistoryMessage'
+              momoid:
+                type: string
+                description: 目标陌陌号
+              send_id:
+                type: string
+                description: 发送端 ID
+      responses:
+        '200':
+          description: 生成成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        type: string
+                        description: AI 生成回复
+                      usage:
+                        type: object
+                        description: token 使用统计
+
+  /api/chatid:
+    post:
+      tags:
+        - Chat
+      summary: 生成 chat_id
+      description: 根据 send_momoid 生成一个会话 chat_id。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - send_momoid
+            properties:
+              send_momoid:
+                type: string
+                description: 发送端陌陌号
+      responses:
+        '200':
+          description: 生成成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      chat_id:
+                        type: string
+                        description: 生成出的 chat_id
+
+  /api/check_account:
+    post:
+      tags:
+        - Chat
+      summary: 单账号回复资格检测
+      description: 判断一个会话是否满足自动回复条件，并返回对应的话术。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - momoid
+              - send_id
+            properties:
+              momoid:
+                type: string
+                description: 目标陌陌号
+              send_id:
+                type: string
+                description: 发送端陌陌号
+              setting:
+                type: integer
+                description: 严格模式开关，0 默认，1 严格
+                enum: [0, 1]
+              token:
+                type: string
+                description: 兼容字段，旧链路中用于透传 AI 调用
+      responses:
+        '200':
+          description: 检测完成
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/AccountCheckResult'
+
+  /api/check_keyword:
+    post:
+      tags:
+        - Chat
+      summary: 最近回复关键词检测
+      description: 检查上一次自己回复后，对方的回复是否命中关键词。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - momoid
+              - send_id
+            properties:
+              momoid:
+                type: string
+                description: 目标陌陌号
+              send_id:
+                type: string
+                description: 发送端陌陌号
+      responses:
+        '200':
+          description: 检测完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/chat_history:
+    get:
+      tags:
+        - Chat
+      summary: 读取聊天记录
+      description: 根据 momo_user_id 返回完整会话聊天记录。
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: momo_user_id
+          in: query
+          required: true
+          type: integer
+          description: 陌陌会话记录 ID
+      responses:
+        '200':
+          description: 获取成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatHistoryItem'
+
+  /api/session_message:
+    post:
+      tags:
+        - Batch
+      summary: 批量会话资料筛选
+      description: 根据多个 SESSION_ID 批量请求远程资料并筛选有效会话。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SessionMessageRequest'
+      responses:
+        '200':
+          description: 处理完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/last_message:
+    post:
+      tags:
+        - Batch
+      summary: 最后一条消息资料筛选
+      description: 根据 c4xid 批量查询远程资料，并结合本地条件筛选有效用户。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/LastMessageRequest'
+      responses:
+        '200':
+          description: 处理完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/remoteid_check:
+    post:
+      tags:
+        - Batch
+      summary: remoteid 资料筛选
+      description: 根据多个 m_remoteid 批量筛选在线男性资料。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RemoteIdCheckRequest'
+      responses:
+        '200':
+          description: 处理完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/batch_check_account:
+    post:
+      tags:
+        - Batch
+      summary: 旧版批量账号检测
+      description: 根据一组账号 ID 批量生成可发送的话术。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/BatchCheckAccountRequest'
+      responses:
+        '200':
+          description: 批量处理完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/batch_check_account_v2:
+    post:
+      tags:
+        - Batch
+      summary: 新版批量账号检测
+      description: 先批量获取远程资料，再对每个账号执行单账号检测逻辑。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/BatchCheckAccountV2Request'
+      responses:
+        '200':
+          description: 批量处理完成
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/download/list:
+    post:
+      tags:
+        - Download
+      summary: 获取一个待下载文件
+      description: 随机返回当前用户一个未下载文件的元信息。
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 获取成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/FileInfo'
+
+  /api/download/file:
+    post:
+      tags:
+        - Download
+      summary: 下载指定文件
+      description: 按文件名或文件 ID 下载文件，成功后更新下载状态。
+      security:
+        - BearerAuth: []
+      produces:
+        - application/octet-stream
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              filename:
+                type: string
+                description: 文件名，与 file_id 至少传一个
+              file_id:
+                type: integer
+                description: 文件 ID，与 filename 至少传一个
+      responses:
+        '200':
+          description: 下载成功，返回文件流
+          schema:
+            type: string
+            format: binary
+
+  /api/download/status:
+    post:
+      tags:
+        - Download
+      summary: 更新下载状态
+      description: 根据文件名更新文件下载状态。
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - filename
+            properties:
+              filename:
+                type: string
+                description: 文件名
+              is_downloaded:
+                type: integer
+                description: 是否已下载，默认 1
+                example: 1
+      responses:
+        '200':
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/BaseResponse'
+
+  /api/download/iec/list:
+    post:
+      tags:
+        - Download
+      summary: 获取 IEC 文件信息
+      description: 返回固定 IEC 文件的元信息。
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 获取成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: '#/definitions/FileInfo'
+
+  /api/download/iec/file:
+    post:
+      tags:
+        - Download
+      summary: 下载 IEC 文件
+      description: 返回固定 IEC 文件流。
+      security:
+        - BearerAuth: []
+      produces:
+        - application/octet-stream
+      responses:
+        '200':
+          description: 下载成功
+          schema:
+            type: string
+            format: binary
+
+  /api/online_users:
+    post:
+      tags:
+        - Presence
+      summary: 上报在线好友状态
+      description: |
+        上报指定 momoid 当前在线的好友 ID 列表。
+
+        处理逻辑：
+        - 先将当前用户下该 momoid 的全部 send_momoid 记录置为离线
+        - 再将 data 数组中的好友标记为在线
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - momoid
+              - data
+            properties:
+              momoid:
+                type: string
+                description: 主账号陌陌号
+                example: '10001'
+              data:
+                type: array
+                description: 当前在线好友 ID 数组，对应 momo_users.send_momoid
+                items:
+                  type: string
+                example:
+                  - '20001'
+                  - '20002'
+                  - '20003'
+      responses:
+        '200':
+          description: 上报成功
+          schema:
+            allOf:
+              - $ref: '#/definitions/BaseResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      momoid:
+                        type: string
+                        description: 本次上报主账号
+                      reported_online_count:
+                        type: integer
+                        description: 上报的在线好友数量
+                      updated_online_count:
+                        type: integer
+                        description: 实际更新为在线的数据库记录数
+                      total_user_count:
+                        type: integer
+                        description: 当前用户下该 momoid 的会话总数
+
+definitions:
+  BaseResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        description: 请求是否成功
+      code:
+        type: integer
+        description: 业务状态码
+      data:
+        description: 响应主体
+      message:
+        type: string
+        description: 提示信息
+    required:
+      - success
+      - code
+      - data
+      - message
+
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 用户 ID
+      username:
+        type: string
+        description: 用户名
+      email:
+        type: string
+        description: 邮箱
+      role:
+        type: integer
+        description: 角色，1 通常表示管理员
+      created_at:
+        type: string
+        description: 创建时间
+      updated_at:
+        type: string
+        description: 更新时间
+
+  Script:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: integer
+      name:
+        type: string
+        description: 话术名称
+      content:
+        type: string
+        description: 话术内容
+      created_at:
+        type: string
+      updated_at:
+        type: string
+
+  Keyword:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: integer
+      keyword:
+        type: string
+        description: 命中的关键词
+      reply:
+        type: string
+        description: 关键词对应回复
+      created_at:
+        type: string
+      updated_at:
+        type: string
+
+  HistoryMessage:
+    type: object
+    properties:
+      content:
+        type: string
+        description: 消息内容
+      is_self:
+        type: boolean
+        description: 是否自己发送
+
+  MomoRequest:
+    type: object
+    required:
+      - action
+    properties:
+      action:
+        type: string
+        description: |
+          子动作：
+          search / update / import_messages / block
+      id:
+        type: integer
+        description: update 时可传的目标记录 ID
+      momoid:
+        type: string
+        description: 目标陌陌号或主账号陌陌号
+      send_momoid:
+        type: string
+        description: 发送端陌陌号或会话账号
+      content:
+        type: string
+        description: update 时的消息内容
+      is_send:
+        type: integer
+        description: 是否自己发送，0/1
+      is_friend:
+        type: integer
+        description: 是否好友，0/1
+      is_block:
+        type: integer
+        description: 是否拉黑，0/1
+      message_time:
+        type: integer
+        description: 消息时间戳，毫秒
+      m_type:
+        type: integer
+        description: 消息类型
+      messages:
+        type: array
+        description: import_messages 时上传的消息数组
+        items:
+          type: object
+          additionalProperties: true
+
+  MomoBatchUpdateRequest:
+    type: object
+    required:
+      - momoid
+      - data
+    properties:
+      momoid:
+        type: string
+        description: 主账号陌陌号
+      data:
+        type: array
+        description: 批量账号数据
+        items:
+          type: object
+          properties:
+            陌陌号:
+              type: string
+              description: 会话账号，对应 send_momoid
+            massage:
+              type: array
+              description: 该账号的消息数组
+              items:
+                type: object
+                additionalProperties: true
+
+  MomoBatchUpdateResult:
+    type: object
+    properties:
+      total_accounts:
+        type: integer
+      success_count:
+        type: integer
+      failed_count:
+        type: integer
+      results:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
+
+  AccountCheckResult:
+    type: object
+    properties:
+      eligible:
+        type: boolean
+        description: 是否符合自动回复条件
+      last_message:
+        type: string
+        description: 最近一条对方消息
+      generated_message:
+        type: string
+        description: 返回的话术内容
+      is_guide:
+        type: boolean
+        description: 是否引导话术
+      is_hook:
+        type: boolean
+        description: 是否钩子话术
+      is_keyword:
+        type: boolean
+        description: 是否关键词回复
+      keyword:
+        type: string
+        description: 命中的关键词
+      message_count:
+        type: integer
+        description: 当前消息条数
+      guide_threshold:
+        type: integer
+        description: 引导阈值
+      setting:
+        type: integer
+        description: 当前生效的 setting
+      add_friend:
+        type: integer
+        description: 是否启用加好友策略
+      send_num:
+        type: integer
+        description: 已发送次数
+      should_block:
+        type: boolean
+        description: 是否建议拉黑
+
+  ChatHistoryItem:
+    type: object
+    properties:
+      id:
+        type: integer
+      content:
+        type: string
+        description: 消息内容
+      is_send:
+        type: integer
+        description: 是否自己发送
+      message_time:
+        type: string
+        description: 格式化时间
+
+  SessionMessageRequest:
+    type: object
+    properties:
+      momoid:
+        type: string
+        description: 主账号陌陌号，用于关联本地条件判断
+      remoteids:
+        type: array
+        description: 会话列表
+        items:
+          type: object
+          properties:
+            SESSION_ID:
+              type: string
+              description: 会话 ID
+
+  LastMessageRequest:
+    type: object
+    properties:
+      remoteids:
+        type: array
+        items:
+          type: object
+          properties:
+            c4xid:
+              type: string
+              description: 远程 ID
+            c5message_timestamp:
+              type: integer
+              description: 最后消息时间戳
+            c2mct:
+              type: string
+              description: 最后消息内容
+
+  RemoteIdCheckRequest:
+    type: object
+    properties:
+      remoteids:
+        type: array
+        items:
+          type: object
+          properties:
+            m_remoteid:
+              type: string
+              description: 远程 ID
+            m_msginfo:
+              type: string
+              description: 原始附加信息，回包会原样带回
+
+  BatchCheckAccountRequest:
+    type: object
+    required:
+      - momoid
+      - data
+    properties:
+      momoid:
+        type: string
+        description: 主账号陌陌号
+      setting:
+        type: integer
+        description: 严格模式，0 默认，1 严格
+      data:
+        type: array
+        description: 账号列表
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: 会话账号 ID
+            nickname:
+              type: string
+              description: 昵称
+
+  BatchCheckAccountV2Request:
+    type: object
+    required:
+      - momoid
+      - accounts
+    properties:
+      momoid:
+        type: string
+        description: 主账号陌陌号
+      setting:
+        type: integer
+        description: 严格模式，0 默认，1 严格
+      token:
+        type: string
+        description: 兼容字段，透传给 AI 调用链路
+      accounts:
+        type: array
+        description: 待检测账号列表
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: 会话 ID
+
+  FileInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 文件 ID
+      filename:
+        type: string
+        description: 系统文件名
+      original_name:
+        type: string
+        description: 原始文件名
+      file_url:
+        type: string
+        description: 文件访问地址
+      file_size:
+        type: integer
+        description: 文件大小，字节
+      file_type:
+        type: string
+        description: 文件 MIME 类型
