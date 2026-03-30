@@ -39,17 +39,31 @@ $extraHead = <<<'HTML'
         gap: 12px;
     }
 
+    .switch-flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
     .switch-row {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+        width: auto;
+        max-width: 100%;
         min-height: 32px;
         padding: 8px 10px;
         border-radius: 10px;
         background: rgba(255, 255, 255, 0.14);
         border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .switch-row label {
+        margin: 0;
+        white-space: nowrap;
     }
 
     .field-grid {
@@ -127,7 +141,7 @@ admin_shell_start($ctx, '后台管理系统 - 功能设置', '功能设置', '�
     <section class="settings-card">
         <h2>基础开关</h2>
         <div class="settings-card-body">
-            <div class="section-stack">
+            <div class="switch-flow">
                 <div class="switch-row"><input id="auto_login" type="checkbox"><label for="auto_login">自动上号功能</label></div>
                 <div class="switch-row"><input id="add_friend" type="checkbox"><label for="add_friend">是否添加好友</label></div>
                 <div class="switch-row"><input id="only_send_to_friends" type="checkbox"><label for="only_send_to_friends">只给好友发送</label></div>
