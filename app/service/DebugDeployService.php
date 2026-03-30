@@ -13,6 +13,8 @@ class DebugDeployService
             'debug' => (bool) ($config['app']['debug'] ?? false),
             'enabled' => (bool) ($config['deploy']['debug_allow_pull'] ?? false),
             'workdir' => $this->workdir($config),
+            'force_sync' => (bool) ($config['deploy']['force_sync'] ?? false),
+            'remote' => (string) ($config['deploy']['remote'] ?? 'origin'),
             'pull_command' => $config['deploy']['pull_command'] ?? '',
             'ip' => $request->ip(),
         );
@@ -29,12 +31,9 @@ class DebugDeployService
             throw new RuntimeException('部署目录不存在：' . $workdir, 500);
         }
 
-        $command = trim((string) ($config['deploy']['pull_command'] ?? ''));
-        $this->assertSafeCommand($command);
-
         $before = $this->runGitInfo('git rev-parse --short HEAD', $workdir);
         $branch = $this->runGitInfo('git branch --show-current', $workdir);
-        $result = $this->runCommand($command, $workdir);
+        $result = $this->deploy($config, $workdir, $branch);
         $after = $this->runGitInfo('git rev-parse --short HEAD', $workdir);
 
         $payload = array(
@@ -43,7 +42,7 @@ class DebugDeployService
             'before_revision' => $before,
             'after_revision' => $after,
             'changed' => $before !== '' && $after !== '' ? $before !== $after : null,
-            'command' => $command,
+            'command' => $result['command'],
             'exit_code' => $result['exit_code'],
             'output' => $result['output'],
         );
@@ -63,6 +62,20 @@ class DebugDeployService
     {
         $workdir = trim((string) ($config['deploy']['workdir'] ?? ''));
         return $workdir === '' ? BASE_PATH : $workdir;
+    }
+
+    /** 执行部署动作。 */
+    protected function deploy(array $config, $workdir, $branch)
+    {
+        if (!empty($config['deploy']['force_sync'])) {
+            return $this->forceSync($config, $workdir, $branch);
+        }
+
+        $command = trim((string) ($config['deploy']['pull_command'] ?? ''));
+        $this->assertSafeCommand($command);
+        $result = $this->runCommand($command, $workdir);
+        $result['command'] = $command;
+        return $result;
     }
 
     /** 校验当前请求是否允许访问。 */
@@ -126,6 +139,31 @@ class DebugDeployService
         if (strpos($command, 'git ') !== 0) {
             throw new RuntimeException('部署命令仅允许 git 开头的固定命令', 500);
         }
+    }
+
+    /** 强制同步远端分支，覆盖服务器上已跟踪文件的本地修改。 */
+    protected function forceSync(array $config, $workdir, $branch)
+    {
+        $remote = trim((string) ($config['deploy']['remote'] ?? 'origin'));
+        if ($remote === '') {
+            throw new RuntimeException('部署远端不能为空', 500);
+        }
+
+        if ($branch === '' || $branch === 'HEAD') {
+            throw new RuntimeException('无法识别当前分支，不能执行强制同步', 500);
+        }
+
+        $fetchCommand = 'git fetch ' . escapeshellarg($remote) . ' --prune';
+        $resetCommand = 'git reset --hard ' . escapeshellarg($remote . '/' . $branch);
+
+        $fetchResult = $this->runCommand($fetchCommand, $workdir);
+        $resetResult = $this->runCommand($resetCommand, $workdir);
+
+        return array(
+            'command' => $fetchCommand . ' && ' . $resetCommand,
+            'exit_code' => 0,
+            'output' => trim($fetchResult['output'] . ($fetchResult['output'] !== '' && $resetResult['output'] !== '' ? PHP_EOL : '') . $resetResult['output']),
+        );
     }
 
     /** 执行 git 查询类命令，失败时只返回空字符串。 */

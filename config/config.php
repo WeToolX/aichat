@@ -86,7 +86,11 @@ return array(
         'debug_allow_pull' => env_bool('DEPLOY_DEBUG_ALLOW_PULL', false),
         // 调试部署接口密钥
         'token' => env_value('DEPLOY_WEBHOOK_TOKEN', ''),
-        // 服务器执行的固定拉码命令
+        // 是否强制同步远端分支，忽略服务器本地已跟踪文件改动
+        'force_sync' => env_bool('DEPLOY_FORCE_SYNC', true),
+        // Git 远端名称
+        'remote' => env_value('DEPLOY_REMOTE', 'origin'),
+        // 服务器执行的固定拉码命令，仅 force_sync=false 时使用
         'pull_command' => env_value('DEPLOY_PULL_COMMAND', 'git pull --ff-only'),
         // 拉码执行目录，默认当前项目根目录
         'workdir' => env_value('DEPLOY_WORKDIR', BASE_PATH),
@@ -97,6 +101,6 @@ return array(
         // 超级用户角色值
         'super' => 1,
         // 普通用户角色值
-        'user' => 2,
+        'user' => 2,////
     ),
 );
