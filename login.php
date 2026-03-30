@@ -308,7 +308,6 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             <div class="login-header">
                 <div class="login-logo"><?php echo admin_shell_icon('lock', 'login-logo-icon'); ?></div>
                 <h2 class="login-title">后台管理系统</h2>
-                <p class="login-subtitle">通过当前项目的认证接口完成登录</p>
             </div>
 
             <div id="message-box" class="alert" style="display:none;"></div>

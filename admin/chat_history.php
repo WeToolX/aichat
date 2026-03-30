@@ -401,7 +401,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 聊天记录', '聊天记录', '页面只负责展示和发起请求，聊天数据通过接口读取与写入。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 聊天记录', '聊天记录', '', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

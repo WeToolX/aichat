@@ -172,7 +172,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 关键词管理', '关键词管理', '页面不再直接读写数据库，所有操作通过 `/admin/keywords` 接口完成。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 关键词管理', '关键词管理', '', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 
@@ -210,7 +210,6 @@ admin_shell_start($ctx, '后台管理系统 - 关键词管理', '关键词管理
             <div class="toolbar">
                 <div class="toolbar-copy">
                     <h2>关键词列表</h2>
-                    <p>当前列表来自 `/admin/keywords` 接口。</p>
                 </div>
                 <input id="search-input" type="search" placeholder="搜索关键词或回复内容">
             </div>
