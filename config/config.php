@@ -81,6 +81,18 @@ return array(
         // 允许上传的扩展名列表
         'allowed_extensions' => env_list('SYSTEM_ALLOWED_EXTENSIONS', array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt', 'wb', 'wb2', 'wbk', 'iec')),
     ),
+    'deploy' => array(
+        // 仅在调试模式下允许使用的拉码开关
+        'debug_allow_pull' => env_bool('DEPLOY_DEBUG_ALLOW_PULL', false),
+        // 调试部署接口密钥
+        'token' => env_value('DEPLOY_WEBHOOK_TOKEN', ''),
+        // 服务器执行的固定拉码命令
+        'pull_command' => env_value('DEPLOY_PULL_COMMAND', 'git pull --ff-only'),
+        // 拉码执行目录，默认当前项目根目录
+        'workdir' => env_value('DEPLOY_WORKDIR', BASE_PATH),
+        // 允许访问的来源 IP 列表，留空表示不限制
+        'allowed_ips' => env_list('DEPLOY_ALLOWED_IPS', array()),
+    ),
     'roles' => array(
         // 超级用户角色值
         'super' => 1,

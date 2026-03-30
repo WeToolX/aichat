@@ -84,6 +84,11 @@ class Router
             return true;
         }
 
+        if ($file === 'debug/deploy' && in_array($method, array('handle', 'pull'), true)) {
+            $config = app('config', array());
+            return !empty($config['app']['debug']) && !empty($config['deploy']['debug_allow_pull']);
+        }
+
         return $file === 'admin/auth' && in_array($method, array('login', 'logout'), true);
     }
 }
