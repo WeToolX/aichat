@@ -29,7 +29,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 个人设置', '👤 个人设置', '资料与密码修改都通过后台接口处理，页面不再直接访问数据库。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 个人设置', '个人设置', '资料与密码修改都通过后台接口处理，页面不再直接访问数据库。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

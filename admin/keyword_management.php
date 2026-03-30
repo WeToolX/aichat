@@ -166,7 +166,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 关键词管理', '🔑 关键词管理', '页面不再直接读写数据库，所有操作通过 `/admin/keywords` 接口完成。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 关键词管理', '关键词管理', '页面不再直接读写数据库，所有操作通过 `/admin/keywords` 接口完成。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

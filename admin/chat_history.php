@@ -449,13 +449,13 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 聊天记录', '💬 聊天记录', '页面只负责展示和发起请求，聊天数据通过接口读取与写入。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 聊天记录', '聊天记录', '页面只负责展示和发起请求，聊天数据通过接口读取与写入。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 
 <div class="mb-4">
     <a id="back-link" href="momo_management.php" class="btn btn-secondary">
-        <span>⬅️</span>
+        <?php echo admin_shell_icon('arrow-left', 'icon-inline'); ?>
         返回发送陌陌ID列表
     </a>
 </div>
@@ -502,7 +502,7 @@ admin_shell_start($ctx, '后台管理系统 - 聊天记录', '💬 聊天记录'
 
                 <div class="form-actions">
                     <button id="submit-btn" type="submit" class="btn btn-primary">
-                        <span>📤</span>
+                        <?php echo admin_shell_icon('send', 'icon-inline'); ?>
                         发送消息
                     </button>
                 </div>
@@ -627,7 +627,7 @@ $extraScript = <<<'HTML'
             if (!Array.isArray(state.messages) || state.messages.length === 0) {
                 nodes.list.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">💬</div>
+                        <div class="empty-state-icon">${__EMPTY_ICON__}</div>
                         <div class="empty-state-text">暂无聊天记录</div>
                         <div class="empty-state-subtext">开始发送消息吧</div>
                     </div>
@@ -713,12 +713,14 @@ $extraScript = <<<'HTML'
         Promise.all([loadConversation(), loadMessages()]).catch((error) => {
             nodes.loading.style.display = 'none';
             showMessage('error', error.message);
-            nodes.list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">加载失败</div><div class="empty-state-subtext">请检查会话参数或接口返回。</div></div>';
+            nodes.list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">' + __WARNING_ICON__ + '</div><div class="empty-state-text">加载失败</div><div class="empty-state-subtext">请检查会话参数或接口返回。</div></div>';
         });
     }());
 </script>
 HTML;
 $extraScript = str_replace('__INITIAL_STATE__', $initialStateJson, $extraScript);
+$extraScript = str_replace('__EMPTY_ICON__', json_encode(admin_shell_icon('empty', 'icon-inline'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $extraScript);
+$extraScript = str_replace('__WARNING_ICON__', json_encode(admin_shell_icon('warning', 'icon-inline'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $extraScript);
 
 admin_shell_end($ctx, $extraScript);
 echo ob_get_clean();

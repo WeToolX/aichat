@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/admin_runtime.php';
+require_once __DIR__ . '/includes/admin_shell.php';
 $auth = new AdminPageAuth();
 
 $loggedOut = false;
@@ -26,10 +26,12 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%);
+            padding: 18px;
+            background:
+                radial-gradient(circle at top left, rgba(36, 87, 255, 0.18), transparent 28%),
+                linear-gradient(135deg, #eef4ff 0%, #f6f9fc 100%);
             background-size: cover;
             background-position: center;
             position: relative;
@@ -42,8 +44,8 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.78));
+            backdrop-filter: blur(8px);
             z-index: 0;
         }
         
@@ -51,15 +53,15 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 500px;
+            max-width: 420px;
             padding: var(--spacing-md);
         }
         
         .login-container {
             background-color: #fff;
-            padding: var(--spacing-xl);
+            padding: 20px;
             border-radius: var(--border-radius-lg);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 24px 60px -36px rgba(15, 23, 42, 0.38);
             transition: var(--transition);
             border: 1px solid var(--border-color);
             position: relative;
@@ -77,33 +79,35 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         }
         
         .login-container:hover {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: translateY(-5px);
+            box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.4);
+            transform: translateY(-1px);
         }
         
         .login-header {
             text-align: center;
-            margin-bottom: var(--spacing-xl);
-            padding-bottom: var(--spacing-lg);
+            margin-bottom: 18px;
+            padding-bottom: 14px;
             border-bottom: 1px solid var(--border-color);
         }
         
         .login-logo {
-            font-size: 32px;
-            font-weight: var(--font-weight-bold);
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             color: var(--primary-color);
-            margin-bottom: var(--spacing-md);
+            background: linear-gradient(180deg, rgba(36, 87, 255, 0.12), rgba(14, 165, 233, 0.08));
+            border: 1px solid rgba(36, 87, 255, 0.14);
+            margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--spacing-md);
         }
         
         .login-title {
             font-size: var(--font-size-xl);
             font-weight: var(--font-weight-semibold);
             color: var(--dark-color);
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 4px;
         }
         
         .login-subtitle {
@@ -113,30 +117,30 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         }
         
         .login-form {
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: 16px;
         }
         
         .form-group {
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: 14px;
             position: relative;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 4px;
             color: var(--dark-color);
             font-weight: var(--font-weight-medium);
-            font-size: var(--font-size-sm);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 12px;
+            letter-spacing: 0.02em;
         }
         
         .form-group input {
             width: 100%;
-            padding: var(--spacing-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: var(--font-size-md);
+            min-height: 40px;
+            padding: 9px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 14px;
             transition: var(--transition);
             background-color: #fff;
         }
@@ -154,62 +158,32 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         
         .password-toggle {
             position: absolute;
-            right: var(--spacing-md);
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: var(--gray-color);
             transition: var(--transition);
+            width: 28px;
+            height: 28px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .password-toggle:hover {
             color: var(--primary-color);
-            transform: translateY(-50%) scale(1.1);
+            transform: translateY(-50%);
+            background: rgba(36, 87, 255, 0.08);
         }
         
         .login-btn {
             width: 100%;
-            padding: var(--spacing-md);
-            border: none;
-            border-radius: var(--border-radius);
-            background-color: var(--primary-color);
-            color: #fff;
-            font-size: var(--font-size-md);
-            font-weight: var(--font-weight-semibold);
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: var(--spacing-lg);
-            box-shadow: 0 4px 6px -1px rgba(67, 97, 238, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-        
-        .login-btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px -3px rgba(67, 97, 238, 0.5);
-        }
-        
-        .login-btn:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .login-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 6px -1px rgba(67, 97, 238, 0.4);
+            min-height: 40px;
+            margin-bottom: 16px;
         }
         
         .login-btn:disabled {
@@ -292,11 +266,12 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             }
             
             .login-container {
-                padding: var(--spacing-lg);
+                padding: 18px;
             }
             
             .login-logo {
-                font-size: 24px;
+                width: 42px;
+                height: 42px;
             }
             
             .login-title {
@@ -306,16 +281,10 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         
         @media (max-width: 480px) {
             .login-container {
-                padding: var(--spacing-md);
+                padding: 16px;
             }
             
             .form-group input {
-                padding: var(--spacing-sm);
-                font-size: var(--font-size-sm);
-            }
-            
-            .login-btn {
-                padding: var(--spacing-sm);
                 font-size: var(--font-size-sm);
             }
         }
@@ -325,7 +294,7 @@ if ($auth->isLoggedIn() && !$loggedOut) {
     <div class="login-wrapper">
         <div class="login-container">
             <div class="login-header">
-                <div class="login-logo">🔐</div>
+                <div class="login-logo"><?php echo admin_shell_icon('lock', 'login-logo-icon'); ?></div>
                 <h2 class="login-title">后台管理系统</h2>
                 <p class="login-subtitle">通过当前项目的认证接口完成登录</p>
             </div>
@@ -350,10 +319,10 @@ if ($auth->isLoggedIn() && !$loggedOut) {
                     <label for="password">密码</label>
                     <div class="password-container">
                         <input type="password" id="password" name="password" required autocomplete="current-password">
-                        <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                        <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="显示密码"><?php echo admin_shell_icon('eye', 'icon-inline'); ?></button>
                     </div>
                 </div>
-                <button id="login-btn" type="submit" class="login-btn">登录系统</button>
+                <button id="login-btn" type="submit" class="btn btn-primary login-btn">登录系统</button>
             </form>
             
             <div class="login-footer">
@@ -375,10 +344,12 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                passwordToggle.textContent = '👁️‍🗨️';
+                passwordToggle.innerHTML = <?php echo json_encode(admin_shell_icon('eye-off', 'icon-inline')); ?>;
+                passwordToggle.setAttribute('aria-label', '隐藏密码');
             } else {
                 passwordInput.type = 'password';
-                passwordToggle.textContent = '👁️';
+                passwordToggle.innerHTML = <?php echo json_encode(admin_shell_icon('eye', 'icon-inline')); ?>;
+                passwordToggle.setAttribute('aria-label', '显示密码');
             }
         }
 

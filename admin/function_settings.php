@@ -85,7 +85,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 功能设置', '⚙️ 功能设置', '表单只负责展示与提交，实际读写通过 `/admin/settings` 接口完成。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 功能设置', '功能设置', '表单只负责展示与提交，实际读写通过 `/admin/settings` 接口完成。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

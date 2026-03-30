@@ -44,7 +44,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 用户管理', '👥 用户管理', '用户页已改为前端驱动，通过 `/admin/users` 接口完成新增、编辑和删除。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 用户管理', '用户管理', '用户页已改为前端驱动，通过 `/admin/users` 接口完成新增、编辑和删除。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

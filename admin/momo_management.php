@@ -22,7 +22,9 @@ $extraHead = <<<'HTML'
     .stack { display: grid; gap: var(--spacing-md); }
     .field label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
     .field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
-    .switch-row { display: flex; gap: var(--spacing-sm); align-items: center; flex-wrap: wrap; }
+    .switch-row { display: inline-flex; gap: 6px; align-items: center; flex: 0 0 auto; }
+    .switch-row label { display: inline; margin: 0; font-weight: var(--font-weight-medium); }
+    .switch-inline { display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap; }
     .toolbar { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; }
     .toolbar input { width: min(320px, 100%); padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); }
     .groups { display: grid; gap: var(--spacing-sm); }
@@ -46,7 +48,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 陌陌用户管理', '📱 陌陌用户管理', '主页展示主账号分组，会话明细拆分为独立页面。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 陌陌用户管理', '陌陌用户管理', '主页展示主账号分组，会话明细拆分为独立页面。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 
@@ -68,9 +70,11 @@ admin_shell_start($ctx, '后台管理系统 - 陌陌用户管理', '📱 陌陌�
                 <div class="field"><label for="momoid">陌陌ID</label><input id="momoid" type="text" placeholder="外层陌陌ID"></div>
                 <div class="field"><label for="send_momoid">发送陌陌ID</label><input id="send_momoid" type="text" placeholder="会话陌陌ID"></div>
                 <div class="field"><label for="send_num">发送次数</label><input id="send_num" type="number" min="0" value="0"></div>
-                <div class="switch-row"><input id="is_send" type="checkbox"><label for="is_send">已发送</label></div>
-                <div class="switch-row"><input id="is_block" type="checkbox"><label for="is_block">已拉黑</label></div>
-                <div class="switch-row"><input id="is_friend" type="checkbox"><label for="is_friend">已是好友</label></div>
+                <div class="switch-inline">
+                    <div class="switch-row"><input id="is_send" type="checkbox"><label for="is_send">已发送</label></div>
+                    <div class="switch-row"><input id="is_block" type="checkbox"><label for="is_block">已拉黑</label></div>
+                    <div class="switch-row"><input id="is_friend" type="checkbox"><label for="is_friend">已是好友</label></div>
+                </div>
                 <div class="actions">
                     <button type="submit" class="btn btn-primary">保存</button>
                     <button type="button" class="btn btn-secondary" id="reset-btn">重置</button>

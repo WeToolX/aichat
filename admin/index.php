@@ -138,7 +138,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 首页', '🏠 仪表盘', '后台首页已改为前端驱动，统计数据通过当前项目的管理接口加载。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 首页', '仪表盘', '后台首页已改为前端驱动，统计数据通过当前项目的管理接口加载。', $extraHead);
 ?>
 <section class="overview-grid">
     <article class="overview-card">

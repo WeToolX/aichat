@@ -176,7 +176,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 话术设置', '💬 话术设置', '页面只负责渲染，所有话术数据通过后台管理接口读写。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 话术设置', '话术设置', '页面只负责渲染，所有话术数据通过后台管理接口读写。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 

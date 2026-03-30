@@ -41,7 +41,7 @@ $extraHead = <<<'HTML'
 HTML;
 
 ob_start();
-admin_shell_start($ctx, '后台管理系统 - 文件管理', '📁 文件管理', '页面只做上传与展示，文件读写通过 `/admin/files` 接口完成。', $extraHead);
+admin_shell_start($ctx, '后台管理系统 - 文件管理', '文件管理', '页面只做上传与展示，文件读写通过 `/admin/files` 接口完成。', $extraHead);
 ?>
 <div id="message-box" class="message-box"></div>
 
