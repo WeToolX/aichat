@@ -8,3 +8,4 @@ storage/logs/*
 # Keep directory placeholders
 !storage/install/.gitkeep
 !storage/logs/.gitkeep
+deploy_debug.sh

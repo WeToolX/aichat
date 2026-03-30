@@ -94,10 +94,24 @@ echo "推送分支 ${BRANCH} 到 ${REMOTE}..."
 git push "$REMOTE" "$BRANCH"
 
 echo "调用部署接口 ${ENDPOINT} ..."
-curl --fail --silent --show-error \
-  -X POST \
-  -H "X-Deploy-Token: ${TOKEN}" \
-  "${ENDPOINT}"
+TMP_RESPONSE="$(mktemp)"
+HTTP_STATUS="$(
+  curl --silent --show-error \
+    -o "${TMP_RESPONSE}" \
+    -w "%{http_code}" \
+    -X POST \
+    -H "X-Deploy-Token: ${TOKEN}" \
+    "${ENDPOINT}"
+)"
+
+cat "${TMP_RESPONSE}"
+echo
+rm -f "${TMP_RESPONSE}"
+
+if [[ "${HTTP_STATUS}" -lt 200 || "${HTTP_STATUS}" -ge 300 ]]; then
+  echo "部署接口调用失败，HTTP 状态码: ${HTTP_STATUS}" >&2
+  exit 1
+fi
 
 echo
 echo "部署请求已发送"
