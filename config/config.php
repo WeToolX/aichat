@@ -94,6 +94,12 @@ return array(
         'pull_command' => env_value('DEPLOY_PULL_COMMAND', 'git pull --ff-only'),
         // 拉码执行目录，默认当前项目根目录
         'workdir' => env_value('DEPLOY_WORKDIR', BASE_PATH),
+        // 执行部署命令时显式注入的 HTTP 代理
+        'http_proxy' => env_value('DEPLOY_HTTP_PROXY', ''),
+        // 执行部署命令时显式注入的 HTTPS 代理
+        'https_proxy' => env_value('DEPLOY_HTTPS_PROXY', ''),
+        // 需要直连的地址列表
+        'no_proxy' => env_value('DEPLOY_NO_PROXY', ''),
         // 允许访问的来源 IP 列表，留空表示不限制
         'allowed_ips' => env_list('DEPLOY_ALLOWED_IPS', array()),
     ),

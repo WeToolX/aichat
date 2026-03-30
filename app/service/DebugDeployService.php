@@ -16,6 +16,8 @@ class DebugDeployService
             'force_sync' => (bool) ($config['deploy']['force_sync'] ?? false),
             'remote' => (string) ($config['deploy']['remote'] ?? 'origin'),
             'pull_command' => $config['deploy']['pull_command'] ?? '',
+            'http_proxy' => trim((string) ($config['deploy']['http_proxy'] ?? '')) !== '',
+            'https_proxy' => trim((string) ($config['deploy']['https_proxy'] ?? '')) !== '',
             'ip' => $request->ip(),
         );
     }
@@ -180,19 +182,51 @@ class DebugDeployService
     /** 执行固定命令并收集输出。 */
     protected function runCommand($command, $workdir)
     {
+        $env = $this->commandEnv();
+
         if (function_exists('proc_open')) {
-            return $this->runWithProcOpen($command, $workdir);
+            return $this->runWithProcOpen($command, $workdir, $env);
         }
 
         if (function_exists('exec')) {
-            return $this->runWithExec($command, $workdir);
+            return $this->runWithExec($command, $workdir, $env);
         }
 
         throw new RuntimeException('服务器未开放 proc_open/exec，无法执行部署命令', 500);
     }
 
+    /** 组装部署命令专用环境变量。 */
+    protected function commandEnv()
+    {
+        $config = $this->config();
+        $deploy = $config['deploy'] ?? array();
+        $env = $_ENV;
+
+        $httpProxy = trim((string) ($deploy['http_proxy'] ?? ''));
+        $httpsProxy = trim((string) ($deploy['https_proxy'] ?? ''));
+        $noProxy = trim((string) ($deploy['no_proxy'] ?? ''));
+
+        if ($httpProxy !== '') {
+            $env['HTTP_PROXY'] = $httpProxy;
+            $env['http_proxy'] = $httpProxy;
+        }
+
+        if ($httpsProxy !== '') {
+            $env['HTTPS_PROXY'] = $httpsProxy;
+            $env['https_proxy'] = $httpsProxy;
+        }
+
+        if ($noProxy !== '') {
+            $normalizedNoProxy = str_replace(',', ',', $noProxy);
+            $env['NO_PROXY'] = $normalizedNoProxy;
+            $env['no_proxy'] = $normalizedNoProxy;
+        }
+
+        return $env;
+    }
+
     /** 通过 proc_open 执行命令。 */
-    protected function runWithProcOpen($command, $workdir)
+    protected function runWithProcOpen($command, $workdir, array $env)
     {
         $descriptors = array(
             0 => array('pipe', 'r'),
@@ -200,7 +234,7 @@ class DebugDeployService
             2 => array('pipe', 'w'),
         );
 
-        $process = @proc_open(array('/bin/sh', '-lc', $command), $descriptors, $pipes, $workdir);
+        $process = @proc_open(array('/bin/sh', '-lc', $command), $descriptors, $pipes, $workdir, $env);
         if (!is_resource($process)) {
             throw new RuntimeException('无法启动部署进程', 500);
         }
@@ -224,11 +258,18 @@ class DebugDeployService
     }
 
     /** 通过 exec 执行命令。 */
-    protected function runWithExec($command, $workdir)
+    protected function runWithExec($command, $workdir, array $env)
     {
         $output = array();
         $exitCode = 0;
-        $shell = 'cd ' . escapeshellarg($workdir) . ' && ' . $command . ' 2>&1';
+        $prefix = '';
+        foreach (array('HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 'NO_PROXY', 'no_proxy') as $key) {
+            if (isset($env[$key]) && $env[$key] !== '') {
+                $prefix .= $key . '=' . escapeshellarg($env[$key]) . ' ';
+            }
+        }
+
+        $shell = 'cd ' . escapeshellarg($workdir) . ' && ' . $prefix . $command . ' 2>&1';
         exec($shell, $output, $exitCode);
 
         $text = trim(implode(PHP_EOL, $output));
