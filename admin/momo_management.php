@@ -31,21 +31,26 @@ $extraHead = <<<'HTML'
     .momo-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
     .pagination-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
     .pagination-actions { display: flex; gap: var(--spacing-sm); align-items: center; }
+    .momo-side { display: grid; gap: 8px; justify-items: end; min-width: 0; }
     .tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag { display: inline-flex; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: var(--font-weight-medium); }
     .tag.online { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .tag.blocked { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
     .tag.friend { background: rgba(67, 97, 238, 0.12); color: #1d4ed8; }
     .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
+    .momo-item .btn { padding: 5px; }
     .empty-state { padding: var(--spacing-xl); text-align: center; color: var(--gray-dark); border: 1px dashed var(--border-color); border-radius: var(--border-radius); }
 
     @media (max-width: 960px) {
         .summary-grid { grid-template-columns: 1fr 1fr; }
         .page-grid { grid-template-columns: 1fr; }
+        .momo-top { flex-wrap: wrap; }
+        .momo-side { width: 100%; justify-items: start; }
     }
 
     @media (max-width: 640px) {
         .summary-grid { grid-template-columns: 1fr; }
+        .actions { width: 100%; }
     }
 </style>
 HTML;
@@ -223,16 +228,18 @@ $extraScript = <<<'HTML'
                             <div class="momo-name">${escapeHtml(item.momoid)} / ${escapeHtml(item.send_momoid)}</div>
                             <div class="momo-meta">ID #${item.id} · 发送次数 ${item.send_num || 0}</div>
                         </div>
-                        <div class="tags">
-                            ${Number(item.is_online || 0) === 1 ? '<span class="tag online">在线</span>' : ''}
-                            ${Number(item.is_friend || 0) === 1 ? '<span class="tag friend">好友</span>' : ''}
-                            ${Number(item.is_block || 0) === 1 ? '<span class="tag blocked">拉黑</span>' : ''}
+                        <div class="momo-side">
+                            <div class="tags">
+                                ${Number(item.is_online || 0) === 1 ? '<span class="tag online">在线</span>' : ''}
+                                ${Number(item.is_friend || 0) === 1 ? '<span class="tag friend">好友</span>' : ''}
+                                ${Number(item.is_block || 0) === 1 ? '<span class="tag blocked">拉黑</span>' : ''}
+                            </div>
+                            <div class="actions">
+                                <button type="button" class="btn btn-primary" data-edit="${item.id}">编辑</button>
+                                <button type="button" class="btn btn-secondary" onclick="location.href='chat_history.php?momo_user_id=${item.id}&momoid=${encodeURIComponent(item.momoid)}&send_momoid=${encodeURIComponent(item.send_momoid)}'">聊天记录</button>
+                                <button type="button" class="btn btn-danger" data-delete="${item.id}">删除</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="actions">
-                        <button type="button" class="btn btn-primary" data-edit="${item.id}">编辑</button>
-                        <button type="button" class="btn btn-secondary" onclick="location.href='chat_history.php?momo_user_id=${item.id}&momoid=${encodeURIComponent(item.momoid)}&send_momoid=${encodeURIComponent(item.send_momoid)}'">聊天记录</button>
-                        <button type="button" class="btn btn-danger" data-delete="${item.id}">删除</button>
                     </div>
                 </article>
             `).join('') : '<div class="empty-state">暂无会话数据</div>';
