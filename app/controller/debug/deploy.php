@@ -3,6 +3,15 @@
 /** 调试部署控制器。 */
 class DebugDeployController extends BaseController
 {
+    /** 调试部署接口兼容 GET/POST，避免部分代理层改写请求方法。 */
+    protected function requireDeployMethod()
+    {
+        $method = $this->request()->method();
+        if ($method !== 'GET' && $method !== 'POST') {
+            response(false, array(), '只支持GET或POST请求', 405);
+        }
+    }
+
     /** 返回调试部署接口状态。 */
     public function handle()
     {
@@ -18,7 +27,7 @@ class DebugDeployController extends BaseController
     /** 执行固定拉码命令。 */
     public function pull()
     {
-        $this->requirePost();
+        $this->requireDeployMethod();
 
         try {
             $result = (new DebugDeployService())->pull($this->request());
