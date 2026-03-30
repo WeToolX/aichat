@@ -21,6 +21,7 @@ if ($auth->isLoggedIn() && !$loggedOut) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>后台管理系统 - 登录</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
     <style>
         body {
             display: flex;
@@ -30,8 +31,9 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             margin: 0;
             padding: 18px;
             background:
-                radial-gradient(circle at top left, rgba(36, 87, 255, 0.18), transparent 28%),
-                linear-gradient(135deg, #eef4ff 0%, #f6f9fc 100%);
+                radial-gradient(circle at 14% 16%, rgba(36, 87, 255, 0.26), transparent 24%),
+                radial-gradient(circle at 84% 12%, rgba(14, 165, 233, 0.2), transparent 22%),
+                linear-gradient(135deg, #eaf2ff 0%, #dfe8f6 52%, #ebf0f8 100%);
             background-size: cover;
             background-position: center;
             position: relative;
@@ -44,8 +46,8 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.78));
-            backdrop-filter: blur(8px);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.4));
+            backdrop-filter: blur(10px);
             z-index: 0;
         }
         
@@ -58,14 +60,16 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         }
         
         .login-container {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.46);
             padding: 20px;
             border-radius: var(--border-radius-lg);
-            box-shadow: 0 24px 60px -36px rgba(15, 23, 42, 0.38);
+            box-shadow: 0 34px 68px -42px rgba(15, 23, 42, 0.46);
             transition: var(--transition);
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.34);
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
         }
         
         .login-container::before {
@@ -95,12 +99,14 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             height: 48px;
             border-radius: 14px;
             color: var(--primary-color);
-            background: linear-gradient(180deg, rgba(36, 87, 255, 0.12), rgba(14, 165, 233, 0.08));
-            border: 1px solid rgba(36, 87, 255, 0.14);
+            background: rgba(255, 255, 255, 0.34);
+            border: 1px solid rgba(255, 255, 255, 0.38);
             margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(18px) saturate(150%);
+            -webkit-backdrop-filter: blur(18px) saturate(150%);
         }
         
         .login-title {
@@ -138,17 +144,20 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             width: 100%;
             min-height: 40px;
             padding: 9px 12px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.38);
             border-radius: var(--border-radius-sm);
             font-size: 14px;
             transition: var(--transition);
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(16px) saturate(145%);
+            -webkit-backdrop-filter: blur(16px) saturate(145%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 12px 24px -24px rgba(15, 23, 42, 0.48);
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            border-color: rgba(112, 149, 255, 0.68);
+            box-shadow: 0 0 0 3px rgba(36, 87, 255, 0.12), 0 14px 30px -22px rgba(36, 87, 255, 0.42);
             transform: translateY(-1px);
         }
         
@@ -177,7 +186,7 @@ if ($auth->isLoggedIn() && !$loggedOut) {
         .password-toggle:hover {
             color: var(--primary-color);
             transform: translateY(-50%);
-            background: rgba(36, 87, 255, 0.08);
+            background: rgba(255, 255, 255, 0.34);
         }
         
         .login-btn {
@@ -230,7 +239,10 @@ if ($auth->isLoggedIn() && !$loggedOut) {
             transition: var(--transition);
             padding: var(--spacing-xs) var(--spacing-sm);
             border-radius: var(--border-radius-sm);
-            background-color: rgba(67, 97, 238, 0.1);
+            background-color: rgba(255, 255, 255, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            backdrop-filter: blur(16px) saturate(145%);
+            -webkit-backdrop-filter: blur(16px) saturate(145%);
         }
         
         .init-db a:hover {

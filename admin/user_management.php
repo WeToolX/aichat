@@ -15,25 +15,28 @@ $extraHead = <<<'HTML'
     .message-box.success { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .message-box.error { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
 
-    .page-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: var(--spacing-lg); }
-    .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-    .panel-header, .panel-body { padding: var(--spacing-lg); }
-    .panel-header { border-bottom: 1px solid var(--border-color); }
-    .stack { display: grid; gap: var(--spacing-md); }
-    .field label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
-    .field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
-    .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
-    .toolbar { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); }
-    .toolbar input { width: min(320px, 100%); padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); }
-    .user-list { display: grid; gap: var(--spacing-sm); }
-    .user-item { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); display: grid; gap: var(--spacing-sm); }
-    .user-top { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: start; }
+    .page-grid { display: grid; grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .panel { overflow: hidden; }
+    .panel-header, .panel-body { padding: 14px 16px; }
+    .panel-header { display: grid; gap: 4px; }
+    .stack { display: grid; gap: 12px; }
+    .field label { display: block; margin-bottom: 4px; font-weight: var(--font-weight-medium); }
+    .field input, .field select { font: inherit; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 0; flex-wrap: wrap; }
+    .toolbar input { width: min(340px, 100%); }
+    .user-list { display: grid; gap: 10px; }
+    .user-item { border-radius: var(--border-radius); padding: 14px; display: grid; gap: 10px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16); }
+    .user-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap; }
     .user-name { font-weight: var(--font-weight-semibold); }
     .user-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
     .role-tag { display: inline-flex; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: var(--font-weight-medium); }
     .role-tag.super { background: rgba(67, 97, 238, 0.12); color: #1d4ed8; }
     .role-tag.user { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .empty-state { padding: var(--spacing-xl); text-align: center; color: var(--gray-dark); border: 1px dashed var(--border-color); border-radius: var(--border-radius); }
+    .panel-header h2 { margin: 0; }
+    .toolbar-copy { display: grid; gap: 4px; }
+    .toolbar-copy p { margin: 0; font-size: 13px; }
 
     @media (max-width: 960px) {
         .page-grid { grid-template-columns: 1fr; }
@@ -86,7 +89,7 @@ admin_shell_start($ctx, '后台管理系统 - 用户管理', '用户管理', '�
     <section class="panel">
         <div class="panel-header">
             <div class="toolbar">
-                <div>
+                <div class="toolbar-copy">
                     <h2>用户列表</h2>
                     <p>当前列表来自 `/admin/users` 接口。</p>
                 </div>

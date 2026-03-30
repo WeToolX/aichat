@@ -8,61 +8,57 @@ $extraHead = <<<'HTML'
 <style>
     .page-grid {
         display: grid;
-        grid-template-columns: 380px minmax(0, 1fr);
-        gap: var(--spacing-lg);
+        grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+        gap: 14px;
     }
 
     .panel {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
+        overflow: hidden;
     }
 
     .panel-header,
     .panel-body {
-        padding: var(--spacing-lg);
+        padding: 14px 16px;
     }
 
     .panel-header {
-        border-bottom: 1px solid var(--border-color);
+        display: grid;
+        gap: 4px;
     }
 
     .stack {
         display: grid;
-        gap: var(--spacing-md);
+        gap: 12px;
     }
 
     .form-row label {
         display: block;
-        margin-bottom: var(--spacing-xs);
+        margin-bottom: 4px;
         font-weight: var(--font-weight-medium);
     }
 
     .form-row input,
     .form-row textarea {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
         font: inherit;
     }
 
     .form-row textarea {
-        min-height: 220px;
+        min-height: 260px;
         resize: vertical;
     }
 
     .btn-row {
         display: flex;
-        gap: var(--spacing-sm);
+        gap: 8px;
         flex-wrap: wrap;
     }
 
     .info-box {
-        padding: var(--spacing-md);
+        padding: 12px 14px;
         border-radius: var(--border-radius);
-        background: rgba(76, 201, 240, 0.12);
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
         color: var(--dark-color);
         font-size: var(--font-size-sm);
     }
@@ -70,16 +66,13 @@ $extraHead = <<<'HTML'
     .toolbar {
         display: flex;
         justify-content: space-between;
-        gap: var(--spacing-md);
-        align-items: center;
-        margin-bottom: var(--spacing-md);
+        gap: 12px;
+        align-items: end;
+        margin-bottom: 0;
     }
 
     .toolbar input {
-        width: min(320px, 100%);
-        padding: 10px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
+        width: min(340px, 100%);
     }
 
     .message-box {
@@ -106,38 +99,49 @@ $extraHead = <<<'HTML'
 
     .list {
         display: grid;
-        gap: var(--spacing-sm);
+        gap: 10px;
     }
 
     .script-item {
-        border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
-        padding: var(--spacing-md);
+        padding: 14px;
         display: grid;
-        gap: var(--spacing-sm);
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
     }
 
     .script-meta {
         display: flex;
         justify-content: space-between;
-        gap: var(--spacing-md);
-        align-items: start;
+        gap: 12px;
+        align-items: flex-start;
+        flex-wrap: wrap;
     }
 
     .script-name {
         font-weight: var(--font-weight-semibold);
+        font-size: 15px;
     }
 
     .script-body {
         color: var(--gray-dark);
         white-space: pre-wrap;
         word-break: break-word;
+        line-height: 1.55;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 10px;
+        padding: 10px 12px;
     }
 
     .item-actions {
         display: flex;
-        gap: var(--spacing-sm);
+        gap: 8px;
         flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .empty-state {
@@ -150,12 +154,27 @@ $extraHead = <<<'HTML'
 
     .tag {
         display: inline-flex;
-        padding: 2px 10px;
+        align-items: center;
+        padding: 4px 10px;
         border-radius: 999px;
-        background: rgba(248, 113, 113, 0.14);
+        background: rgba(239, 68, 68, 0.14);
         color: #b91c1c;
         font-size: 12px;
         font-weight: var(--font-weight-medium);
+    }
+
+    .form-head {
+        display: grid;
+        gap: 4px;
+    }
+
+    .panel-header h2 {
+        margin: 0;
+    }
+
+    .panel-header p {
+        margin: 0;
+        font-size: 13px;
     }
 
     @media (max-width: 960px) {

@@ -22,25 +22,22 @@ $extraHead = <<<'HTML'
             display: flex;
             flex-direction: column;
             height: 85vh;
-            background-color: #f8f9fa;
             border-radius: var(--border-radius-lg);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin-top: var(--spacing-lg);
-            transition: all 0.3s ease;
+            margin-top: 12px;
+            transition: all 0.2s ease;
         }
         
         .chat-header {
-            padding: var(--spacing-lg);
-            border-bottom: 1px solid var(--border-color);
-            background-color: #fff;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 10;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            gap: 12px;
+            flex-wrap: wrap;
         }
         
         .chat-title {
@@ -56,46 +53,48 @@ $extraHead = <<<'HTML'
         .chat-info {
             font-size: var(--font-size-sm);
             color: var(--gray-color);
-            margin-top: var(--spacing-xs);
+            margin-top: 4px;
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: 12px;
+            flex-wrap: wrap;
         }
         
         .chat-messages {
             flex: 1;
-            padding: var(--spacing-lg);
+            padding: 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-md);
-            background-color: #f0f2f5;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.12);
         }
         
         /* 消息时间分组 */
         .message-group {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
+            gap: 8px;
+            margin-bottom: 12px;
         }
         
         .message-group-time {
             text-align: center;
-            font-size: var(--font-size-xs);
+            font-size: 12px;
             color: var(--gray-color);
-            margin: var(--spacing-sm) 0;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            background-color: rgba(0, 0, 0, 0.05);
+            margin: 2px 0;
+            padding: 4px 10px;
+            background-color: rgba(255, 255, 255, 0.16);
             border-radius: var(--border-radius);
             align-self: center;
+            border: 1px solid rgba(255, 255, 255, 0.22);
         }
         
         .message {
             display: flex;
             max-width: 80%;
-            margin-bottom: var(--spacing-sm);
-            animation: messageSlideIn 0.3s ease forwards;
+            margin-bottom: 4px;
+            animation: messageSlideIn 0.24s ease forwards;
         }
         
         @keyframes messageSlideIn {
@@ -118,32 +117,35 @@ $extraHead = <<<'HTML'
         }
         
         .message-content {
-            padding: var(--spacing-md);
+            padding: 10px 12px;
             border-radius: var(--border-radius-lg);
             position: relative;
             word-wrap: break-word;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 32px -28px rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(18px) saturate(145%);
+            -webkit-backdrop-filter: blur(18px) saturate(145%);
         }
         
         .message-sent .message-content {
-            background-color: var(--primary-color);
+            background: linear-gradient(180deg, rgba(36, 87, 255, 0.78), rgba(36, 87, 255, 0.62));
             color: #fff;
             border-bottom-right-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
         }
         
         .message-received .message-content {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.28);
             color: var(--dark-color);
             border-bottom-left-radius: 4px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.26);
         }
         
         .message-time {
-            font-size: var(--font-size-xs);
-            color: var(--gray-color);
-            margin-top: var(--spacing-xs);
+            font-size: 12px;
+            color: inherit;
+            margin-top: 4px;
             text-align: right;
-            opacity: 0.7;
+            opacity: 0.72;
         }
         
         .message-received .message-time {
@@ -151,19 +153,20 @@ $extraHead = <<<'HTML'
         }
         
         .chat-input {
-            padding: var(--spacing-lg);
-            border-top: 1px solid var(--border-color);
-            background-color: #fff;
+            padding: 14px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
             position: sticky;
             bottom: 0;
             z-index: 10;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px) saturate(145%);
+            -webkit-backdrop-filter: blur(20px) saturate(145%);
         }
         
         .message-form {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-md);
+            gap: 12px;
         }
         
         .form-group {
@@ -173,33 +176,37 @@ $extraHead = <<<'HTML'
         .form-group label {
             font-weight: var(--font-weight-medium);
             color: var(--dark-color);
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 4px;
             display: block;
             font-size: var(--font-size-sm);
         }
         
         .form-group textarea {
             width: 100%;
-            padding: var(--spacing-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius-lg);
-            font-size: var(--font-size-md);
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            border-radius: 12px;
+            font-size: 14px;
             resize: vertical;
-            min-height: 100px;
+            min-height: 88px;
             transition: var(--transition);
             font-family: inherit;
+            background: rgba(255, 255, 255, 0.24);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
         }
         
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            border-color: rgba(112, 149, 255, 0.68);
+            box-shadow: 0 0 0 3px rgba(36, 87, 255, 0.12);
         }
         
         .form-row {
             display: flex;
-            gap: var(--spacing-md);
+            gap: 12px;
             align-items: flex-end;
+            flex-wrap: wrap;
         }
         
         .form-row .form-group {
@@ -213,60 +220,15 @@ $extraHead = <<<'HTML'
             gap: var(--spacing-sm);
         }
         
-        .btn {
-            padding: var(--spacing-md) var(--spacing-lg);
-            border: none;
-            border-radius: var(--border-radius-lg);
-            font-size: var(--font-size-md);
-            font-weight: var(--font-weight-medium);
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: var(--spacing-xs);
-            min-width: 100px;
-            justify-content: center;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-        
-        .btn-primary:hover {
-            background-color: #5b7bfd;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(76, 201, 240, 0.3);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #38bdf8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(76, 201, 240, 0.4);
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: 20px;
-            font-size: var(--font-size-sm);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
             font-weight: var(--font-weight-medium);
-            transition: all 0.3s ease;
-            margin-left: var(--spacing-sm);
+            transition: all 0.2s ease;
+            margin-left: 8px;
         }
         
         .status-badge-success {
@@ -292,11 +254,11 @@ $extraHead = <<<'HTML'
             display: inline-block;
             width: 24px;
             height: 24px;
-            border: 3px solid rgba(67, 97, 238, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.22);
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
-            margin: var(--spacing-xl) auto;
+            margin: 20px auto;
         }
         
         @keyframes spin {
@@ -309,34 +271,26 @@ $extraHead = <<<'HTML'
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 400px;
+            min-height: 320px;
             text-align: center;
             color: var(--gray-color);
-            padding: var(--spacing-xl);
+            padding: 20px;
         }
         
         .empty-state-icon {
-            font-size: 80px;
-            margin-bottom: var(--spacing-lg);
-            opacity: 0.3;
-            animation: bounce 2s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-20px);
-            }
-            60% {
-                transform: translateY(-10px);
-            }
+            width: 60px;
+            height: 60px;
+            margin-bottom: 12px;
+            opacity: 0.62;
+            color: var(--primary-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .empty-state-text {
             font-size: var(--font-size-lg);
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 6px;
             font-weight: var(--font-weight-medium);
             color: var(--dark-color);
         }
@@ -370,7 +324,7 @@ $extraHead = <<<'HTML'
         .chat-actions {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
         
         .action-btn {
@@ -393,12 +347,11 @@ $extraHead = <<<'HTML'
         @media (max-width: 768px) {
             .chat-container {
                 height: 80vh;
-                margin-top: var(--spacing-md);
-                border-radius: var(--border-radius-md);
+                margin-top: 10px;
             }
             
             .chat-header {
-                padding: var(--spacing-md);
+                padding: 12px 14px;
             }
             
             .chat-title {
@@ -406,7 +359,7 @@ $extraHead = <<<'HTML'
             }
             
             .chat-messages {
-                padding: var(--spacing-md);
+                padding: 12px;
             }
             
             .message {
@@ -425,7 +378,6 @@ $extraHead = <<<'HTML'
             
             .btn {
                 min-width: auto;
-                padding: var(--spacing-sm) var(--spacing-md);
             }
         }
         

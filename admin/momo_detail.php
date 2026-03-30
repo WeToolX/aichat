@@ -11,23 +11,23 @@ $extraHead = <<<'HTML'
     .message-box.show { display: block; }
     .message-box.success { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .message-box.error { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
-    .page-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: var(--spacing-lg); }
-    .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-    .panel-header, .panel-body { padding: var(--spacing-lg); }
-    .panel-header { border-bottom: 1px solid var(--border-color); }
+    .page-grid { display: grid; grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .panel { overflow: hidden; }
+    .panel-header, .panel-body { padding: 14px 16px; }
+    .panel-header { display: grid; gap: 4px; }
     .panel-header p { margin-bottom: 5px; }
-    .toolbar { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; }
-    .toolbar input { width: min(320px, 100%); padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); }
-    .field label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
-    .field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
-    .field input[readonly] { background: var(--gray-light); color: var(--gray-dark); }
-    .stack { display: grid; gap: var(--spacing-md); }
+    .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 0; flex-wrap: wrap; }
+    .toolbar input { width: min(340px, 100%); }
+    .field label { display: block; margin-bottom: 4px; font-weight: var(--font-weight-medium); }
+    .field input { font: inherit; }
+    .field input[readonly] { background: rgba(255, 255, 255, 0.2); color: var(--gray-dark); }
+    .stack { display: grid; gap: 12px; }
     .switch-row { display: inline-flex; gap: 6px; align-items: center; flex: 0 0 auto; }
     .switch-row label { display: inline; margin: 0; font-weight: var(--font-weight-medium); }
     .switch-inline { display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap; }
-    .momo-list { display: grid; gap: var(--spacing-sm); }
-    .momo-item { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); display: grid; gap: var(--spacing-sm); }
-    .momo-top { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: start; }
+    .momo-list { display: grid; gap: 10px; }
+    .momo-item { border-radius: var(--border-radius); padding: 14px; display: grid; gap: 10px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16); }
+    .momo-top { display: flex; justify-content: space-between; gap: 14px; align-items: start; flex-wrap: wrap; }
     .momo-name { font-weight: var(--font-weight-semibold); }
     .momo-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
     .momo-side { display: grid; gap: 8px; justify-items: end; min-width: 0; }
@@ -36,12 +36,15 @@ $extraHead = <<<'HTML'
     .tag.online { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .tag.blocked { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
     .tag.friend { background: rgba(67, 97, 238, 0.12); color: #1d4ed8; }
-    .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
-    .momo-item .btn { padding: 5px; }
-    .pagination-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
-    .pagination-actions { display: flex; gap: var(--spacing-sm); align-items: center; }
-    .back-row { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .momo-item .btn { padding: 6px 10px; }
+    .pagination-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.22); }
+    .pagination-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .back-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .empty-state { padding: var(--spacing-xl); text-align: center; color: var(--gray-dark); border: 1px dashed var(--border-color); border-radius: var(--border-radius); }
+    .detail-heading { display: grid; gap: 4px; }
+    .detail-heading h2 { margin: 0; }
+    .detail-heading p { margin: 0; font-size: 13px; }
 
     @media (max-width: 960px) {
         .page-grid { grid-template-columns: 1fr; }
@@ -91,7 +94,7 @@ admin_shell_start($ctx, '后台管理系统 - 会话明细', '会话明细', '�
     <section class="panel">
         <div class="panel-header">
             <div class="toolbar">
-                <div>
+                <div class="detail-heading">
                     <h2>会话明细</h2>
                     <p id="momoid-hint">主账号：<?php echo admin_shell_escape($initialMomoid); ?></p>
                 </div>

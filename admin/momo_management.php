@@ -11,29 +11,35 @@ $extraHead = <<<'HTML'
     .message-box.success { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .message-box.error { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
 
-    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
-    .summary-card { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); }
-    .summary-card strong { display: block; font-size: 28px; line-height: 1; margin-bottom: var(--spacing-xs); }
-    .page-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: var(--spacing-lg); }
-    .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-    .panel-header, .panel-body { padding: var(--spacing-lg); }
-    .panel-header { border-bottom: 1px solid var(--border-color); }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .summary-card { padding: 14px 16px; min-height: 96px; display: grid; align-content: space-between; }
+    .summary-card strong { display: block; font-size: 30px; line-height: 1; margin-bottom: 2px; letter-spacing: -0.03em; }
+    .page-grid { display: grid; grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .panel { overflow: hidden; }
+    .panel-header, .panel-body { padding: 14px 16px; }
+    .panel-header { display: grid; gap: 4px; }
     .panel-header p { margin-bottom: 5px; }
-    .stack { display: grid; gap: var(--spacing-md); }
-    .field label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
-    .field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
+    .stack { display: grid; gap: 12px; }
+    .field label { display: block; margin-bottom: 4px; font-weight: var(--font-weight-medium); }
+    .field input { font: inherit; }
     .switch-row { display: inline-flex; gap: 6px; align-items: center; flex: 0 0 auto; }
     .switch-row label { display: inline; margin: 0; font-weight: var(--font-weight-medium); }
     .switch-inline { display: flex; gap: var(--spacing-md); align-items: center; flex-wrap: wrap; }
-    .toolbar { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; }
-    .toolbar input { width: min(320px, 100%); padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); }
-    .groups { display: grid; gap: var(--spacing-sm); }
-    .group-item { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); display: grid; gap: var(--spacing-sm); }
-    .group-top { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: start; }
+    .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 0; flex-wrap: wrap; }
+    .toolbar input { width: min(340px, 100%); }
+    .groups { display: grid; gap: 10px; }
+    .group-item { border-radius: var(--border-radius); padding: 14px; display: grid; gap: 10px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16); }
+    .group-top { display: flex; justify-content: space-between; gap: 14px; align-items: start; flex-wrap: wrap; }
     .momo-name { font-weight: var(--font-weight-semibold); }
     .momo-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
-    .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .empty-state { padding: var(--spacing-xl); text-align: center; color: var(--gray-dark); border: 1px dashed var(--border-color); border-radius: var(--border-radius); }
+    .group-content { display: grid; gap: 6px; min-width: 0; }
+
+    .summary-card span {
+        font-size: 12px;
+        color: var(--gray-dark);
+    }
 
     @media (max-width: 960px) {
         .summary-grid { grid-template-columns: 1fr 1fr; }
@@ -173,7 +179,7 @@ $extraScript = <<<'HTML'
             nodes.groups.innerHTML = groups.length ? groups.map((group) => `
                 <article class="group-item">
                     <div class="group-top">
-                        <div>
+                        <div class="group-content">
                             <div class="momo-name">${escapeHtml(group.momoid)}</div>
                             <div class="momo-meta">会话 ${group.total_count || 0} · 好友 ${group.friend_count || 0} · 拉黑 ${group.blocked_count || 0} · 在线 ${group.online_count || 0}</div>
                         </div>

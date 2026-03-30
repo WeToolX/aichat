@@ -11,16 +11,17 @@ $extraHead = <<<'HTML'
     .message-box.success { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .message-box.error { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
 
-    .profile-grid { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: var(--spacing-lg); }
-    .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-    .panel-header, .panel-body { padding: var(--spacing-lg); }
-    .panel-header { border-bottom: 1px solid var(--border-color); }
-    .stack { display: grid; gap: var(--spacing-md); }
-    .info-row { display: flex; justify-content: space-between; gap: var(--spacing-md); padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color); }
+    .profile-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 420px); gap: 14px; align-items: start; }
+    .panel { overflow: hidden; }
+    .panel-header, .panel-body { padding: 14px 16px; }
+    .panel-header { display: grid; gap: 4px; }
+    .stack { display: grid; gap: 12px; }
+    .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.22); }
     .info-row:last-child { border-bottom: none; }
-    .field label { display: block; margin-bottom: var(--spacing-xs); font-weight: var(--font-weight-medium); }
-    .field input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
-    .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
+    .field label { display: block; margin-bottom: 4px; font-weight: var(--font-weight-medium); }
+    .field input { font: inherit; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .panel-header h2 { margin: 0; }
 
     @media (max-width: 960px) {
         .profile-grid { grid-template-columns: 1fr; }

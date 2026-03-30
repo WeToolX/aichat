@@ -131,7 +131,39 @@ function admin_shell_start(array $ctx, $title, $pageTitle, $pageSubtitle, $extra
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo admin_shell_escape($title); ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
     <?php echo $extraHead; ?>
+    <style>
+        .panel,
+        .summary-card,
+        .overview-card,
+        .panel-card,
+        .quick-link,
+        .settings-card,
+        .group-item,
+        .momo-item,
+        .chat-container,
+        .chat-header,
+        .chat-input,
+        .message-form,
+        .table,
+        .table-pagination,
+        .table-container {
+            background: rgba(255, 255, 255, 0.52) !important;
+            border: 1px solid rgba(255, 255, 255, 0.34) !important;
+            box-shadow: 0 24px 60px -42px rgba(15, 23, 42, 0.5) !important;
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+        }
+
+        .panel-header,
+        .settings-card h2,
+        .chat-header,
+        .table th {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.24) !important;
+        }
+    </style>
 </head>
 <body>
     <header class="header">

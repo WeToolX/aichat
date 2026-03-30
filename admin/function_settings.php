@@ -20,53 +20,51 @@ $extraHead = <<<'HTML'
 
     .settings-form {
         display: grid;
-        gap: var(--spacing-lg);
+        gap: 14px;
     }
 
     .settings-card {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
         overflow: hidden;
     }
 
     .settings-card h2 {
-        padding: var(--spacing-lg);
+        padding: 14px 16px;
         margin: 0;
-        border-bottom: 1px solid var(--border-color);
+        font-size: 15px;
     }
 
     .settings-card-body {
-        padding: var(--spacing-lg);
+        padding: 14px 16px;
         display: grid;
-        gap: var(--spacing-md);
+        gap: 12px;
     }
 
     .switch-row {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: var(--spacing-sm);
+        gap: 8px;
         flex-wrap: wrap;
+        min-height: 32px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
     .field-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: var(--spacing-md);
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
     }
 
     .field label {
         display: block;
-        margin-bottom: var(--spacing-xs);
+        margin-bottom: 4px;
         font-weight: var(--font-weight-medium);
     }
 
     .field input {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
         font: inherit;
     }
     .conditional-fields.is-hidden { display: none; }
@@ -74,12 +72,48 @@ $extraHead = <<<'HTML'
     .hint {
         color: var(--gray-dark);
         font-size: var(--font-size-sm);
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
     .actions {
         display: flex;
-        gap: var(--spacing-sm);
+        gap: 8px;
         flex-wrap: wrap;
+        justify-content: flex-end;
+        position: sticky;
+        bottom: 12px;
+        z-index: 2;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(18px) saturate(145%);
+        -webkit-backdrop-filter: blur(18px) saturate(145%);
+        box-shadow: 0 24px 44px -36px rgba(15, 23, 42, 0.45);
+    }
+
+    .section-stack {
+        display: grid;
+        gap: 10px;
+    }
+
+    .settings-card-header {
+        display: grid;
+        gap: 4px;
+    }
+
+    .settings-card-subtitle {
+        font-size: 13px;
+        color: var(--gray-dark);
+    }
+
+    @media (max-width: 640px) {
+        .actions {
+            position: static;
+        }
     }
 </style>
 HTML;
@@ -93,9 +127,11 @@ admin_shell_start($ctx, '后台管理系统 - 功能设置', '功能设置', '�
     <section class="settings-card">
         <h2>基础开关</h2>
         <div class="settings-card-body">
-            <div class="switch-row"><input id="auto_login" type="checkbox"><label for="auto_login">自动上号功能</label></div>
-            <div class="switch-row"><input id="add_friend" type="checkbox"><label for="add_friend">是否添加好友</label></div>
-            <div class="switch-row"><input id="only_send_to_friends" type="checkbox"><label for="only_send_to_friends">只给好友发送</label></div>
+            <div class="section-stack">
+                <div class="switch-row"><input id="auto_login" type="checkbox"><label for="auto_login">自动上号功能</label></div>
+                <div class="switch-row"><input id="add_friend" type="checkbox"><label for="add_friend">是否添加好友</label></div>
+                <div class="switch-row"><input id="only_send_to_friends" type="checkbox"><label for="only_send_to_friends">只给好友发送</label></div>
+            </div>
         </div>
     </section>
 

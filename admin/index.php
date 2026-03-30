@@ -9,23 +9,23 @@ $extraHead = <<<'HTML'
     .overview-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: var(--spacing-lg);
-        margin-bottom: var(--spacing-xl);
+        gap: 12px;
+        margin-bottom: 14px;
     }
 
     .overview-card,
     .panel-card,
     .quick-link {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
+        min-height: 0;
     }
 
     .overview-card {
-        padding: var(--spacing-lg);
+        padding: 16px;
         position: relative;
         overflow: hidden;
+        display: grid;
+        align-content: space-between;
+        gap: 6px;
     }
 
     .overview-card::before {
@@ -38,50 +38,54 @@ $extraHead = <<<'HTML'
     }
 
     .overview-label {
-        font-size: var(--font-size-sm);
+        font-size: 12px;
         color: var(--gray-dark);
-        margin-bottom: var(--spacing-xs);
+        margin-bottom: 0;
     }
 
     .overview-value {
-        font-size: 32px;
+        font-size: 34px;
         font-weight: var(--font-weight-bold);
         color: var(--dark-color);
         line-height: 1.1;
+        letter-spacing: -0.04em;
     }
 
     .overview-hint {
-        margin-top: var(--spacing-sm);
-        font-size: var(--font-size-sm);
+        margin-top: 0;
+        font-size: 12px;
         color: var(--gray-color);
     }
 
     .panel-grid {
         display: grid;
         grid-template-columns: 1.4fr 1fr;
-        gap: var(--spacing-lg);
+        gap: 14px;
     }
 
     .panel-card {
-        padding: var(--spacing-lg);
+        padding: 16px;
     }
 
     .panel-card h2 {
-        margin-bottom: var(--spacing-md);
+        margin-bottom: 10px;
     }
 
     .quick-links {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: var(--spacing-md);
+        gap: 10px;
     }
 
     .quick-link {
         display: block;
-        padding: var(--spacing-lg);
+        padding: 14px;
         color: var(--dark-color);
         text-decoration: none;
         transition: var(--transition);
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
     }
 
     .quick-link:hover {
@@ -102,15 +106,15 @@ $extraHead = <<<'HTML'
 
     .status-list {
         display: grid;
-        gap: var(--spacing-sm);
+        gap: 8px;
     }
 
     .status-item {
         display: flex;
         justify-content: space-between;
-        gap: var(--spacing-md);
-        padding: var(--spacing-sm) 0;
-        border-bottom: 1px solid var(--border-color);
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.22);
     }
 
     .status-item:last-child {

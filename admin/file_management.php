@@ -11,27 +11,49 @@ $extraHead = <<<'HTML'
     .message-box.success { background: rgba(74, 222, 128, 0.14); color: #166534; }
     .message-box.error { background: rgba(248, 113, 113, 0.14); color: #b91c1c; }
 
-    .page-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: var(--spacing-lg); }
-    .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
-    .panel-header, .panel-body { padding: var(--spacing-lg); }
-    .panel-header { border-bottom: 1px solid var(--border-color); }
-    .stack { display: grid; gap: var(--spacing-md); }
+    .page-grid { display: grid; grid-template-columns: minmax(300px, 340px) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .panel { overflow: hidden; }
+    .panel-header, .panel-body { padding: 14px 16px; }
+    .panel-header { display: grid; gap: 4px; }
+    .stack { display: grid; gap: 12px; }
     .hint { color: var(--gray-dark); font-size: var(--font-size-sm); }
-    .toolbar { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; }
-    .toolbar select, .toolbar input { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font: inherit; }
+    .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 0; flex-wrap: wrap; }
+    .toolbar select, .toolbar input { font: inherit; }
     .toolbar input { width: min(320px, 100%); }
-    .actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-    .summary-card { background: #fff; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); }
-    .summary-card strong { display: block; font-size: 28px; line-height: 1; margin-bottom: var(--spacing-xs); }
-    .file-list { display: grid; gap: var(--spacing-sm); }
-    .file-item { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: var(--spacing-md); display: grid; gap: var(--spacing-sm); }
-    .file-top { display: flex; justify-content: space-between; gap: var(--spacing-md); align-items: start; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .summary-card { padding: 14px 16px; min-height: 92px; display: grid; align-content: space-between; }
+    .summary-card strong { display: block; font-size: 30px; line-height: 1; margin-bottom: 2px; letter-spacing: -0.03em; }
+    .file-list { display: grid; gap: 10px; }
+    .file-item { border-radius: var(--border-radius); padding: 14px; display: grid; gap: 10px; background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.24); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16); }
+    .file-top { display: flex; justify-content: space-between; gap: 14px; align-items: start; flex-wrap: wrap; }
     .file-name { font-weight: var(--font-weight-semibold); word-break: break-word; }
     .file-meta { color: var(--gray-dark); font-size: var(--font-size-sm); }
     .empty-state { padding: var(--spacing-xl); text-align: center; color: var(--gray-dark); border: 1px dashed var(--border-color); border-radius: var(--border-radius); }
     .check-row { display: flex; gap: var(--spacing-sm); align-items: center; }
     .check-row input { width: 16px; height: 16px; }
+    .upload-note,
+    .bulk-box {
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+    .bulk-box {
+        display: grid;
+        gap: 10px;
+    }
+    .summary-card span,
+    .section-subtitle {
+        font-size: 12px;
+        color: var(--gray-dark);
+    }
+    .panel-header h2,
+    .bulk-box h3 {
+        margin: 0;
+    }
+    .toolbar-copy { display: grid; gap: 4px; }
+    .toolbar-copy p { margin: 0; font-size: 13px; }
 
     @media (max-width: 960px) {
         .page-grid { grid-template-columns: 1fr; }
@@ -53,13 +75,12 @@ admin_shell_start($ctx, '后台管理系统 - 文件管理', '文件管理', '�
         <div class="panel-body stack">
             <form id="upload-form" class="stack">
                 <input id="upload-files" type="file" name="files[]" multiple>
-                <div class="hint">支持批量上传。相同文件名会覆盖原记录并重置下载状态。</div>
+                <div class="upload-note hint">支持批量上传。相同文件名会覆盖原记录并重置下载状态。</div>
                 <div class="actions">
                     <button type="submit" class="btn btn-primary">上传</button>
                 </div>
             </form>
-            <hr>
-            <div class="stack">
+            <div class="bulk-box">
                 <h3>批量删除</h3>
                 <div class="actions">
                     <button type="button" class="btn btn-danger" data-bulk="selected">删除已选</button>
@@ -74,7 +95,7 @@ admin_shell_start($ctx, '后台管理系统 - 文件管理', '文件管理', '�
     <section class="panel">
         <div class="panel-header">
             <div class="toolbar">
-                <div>
+                <div class="toolbar-copy">
                     <h2>文件列表</h2>
                     <p>接口来源：`/admin/files`</p>
                 </div>
