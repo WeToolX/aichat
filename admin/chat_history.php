@@ -618,7 +618,7 @@ $extraScript = <<<'HTML'
             nodes.send.textContent = `发送陌陌ID: ${sendMomoid}`;
             nodes.lastInteraction.textContent = `最后交互: ${lastInteraction}`;
             nodes.messageCount.textContent = `消息数: ${count}`;
-            nodes.back.href = `momo_management.php?momoid=${encodeURIComponent(conversation.momoid || initial.momoid || '')}`;
+            nodes.back.href = `momo_detail.php?momoid=${encodeURIComponent(conversation.momoid || initial.momoid || '')}`;
         }
 
         function renderMessages() {

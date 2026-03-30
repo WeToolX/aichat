@@ -8,6 +8,8 @@ class AdminMomoController extends BaseController
         $result = (new AdminMomoService())->listing($this->user(), array(
             'momoid' => $this->request()->query('momoid', ''),
             'search' => $this->request()->query('search', ''),
+            'group_search' => $this->request()->query('group_search', ''),
+            'with_items' => $this->request()->query('with_items', 1),
             'page' => $this->request()->query('page', 1),
             'per_page' => $this->request()->query('per_page', 20),
         ));

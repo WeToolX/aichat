@@ -776,6 +776,7 @@ a:hover {
     top: 80px;
     height: calc(100vh - 80px);
     overflow-y: auto;
+    margin: 0;
 }
 
 .sidebar-head {
@@ -785,6 +786,7 @@ a:hover {
     gap: var(--spacing-sm);
     padding: 14px 14px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin: 0;
 }
 
 .sidebar-head-title {
@@ -811,12 +813,14 @@ a:hover {
 .sidebar ul {
     list-style: none;
     padding: 6px 0 0;
+    margin: 0;
 }
 
 .sidebar ul li {
     padding: 2px 12px;
     transition: var(--transition);
     position: relative;
+    margin: 0;
 }
 
 .sidebar ul li:hover {
@@ -843,6 +847,7 @@ a:hover {
     transition: var(--transition);
     padding: 10px 8px;
     border-radius: 10px;
+    margin: 0;
 }
 
 .sidebar ul li a:hover {

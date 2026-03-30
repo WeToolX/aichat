@@ -14,38 +14,67 @@ class AdminMomoService
         $userId = (int) $user['id'];
         $momoid = trim((string) ($filters['momoid'] ?? ''));
         $search = trim((string) ($filters['search'] ?? ''));
+        $groupSearch = trim((string) ($filters['group_search'] ?? ''));
+        $withItems = (int) ($filters['with_items'] ?? 1) === 1;
         $page = max(1, (int) ($filters['page'] ?? 1));
         $perPage = max(1, min(100, (int) ($filters['per_page'] ?? 20)));
         $offset = ($page - 1) * $perPage;
 
         $where = array('user_id = :user_id');
         $params = array(':user_id' => $userId);
+        $groupWhere = array('user_id = :group_user_id');
+        $groupParams = array(':group_user_id' => $userId);
 
         if ($momoid !== '') {
             $where[] = 'momoid = :momoid';
             $params[':momoid'] = $momoid;
+            $groupWhere[] = 'momoid = :group_momoid';
+            $groupParams[':group_momoid'] = $momoid;
         }
 
         if ($search !== '') {
-            $where[] = '(momoid LIKE :search_momoid OR send_momoid LIKE :search_send_momoid)';
-            $params[':search_momoid'] = '%' . $search . '%';
-            $params[':search_send_momoid'] = '%' . $search . '%';
+            if ($momoid !== '') {
+                $where[] = 'send_momoid LIKE :search_send_momoid';
+                $params[':search_send_momoid'] = '%' . $search . '%';
+            } else {
+                $where[] = '(momoid LIKE :search_momoid OR send_momoid LIKE :search_send_momoid)';
+                $params[':search_momoid'] = '%' . $search . '%';
+                $params[':search_send_momoid'] = '%' . $search . '%';
+            }
         }
 
-        $whereSql = implode(' AND ', $where);
-        $total = (int) ((MomoUser::queryOne(
-            'SELECT COUNT(*) AS total FROM momo_users WHERE ' . $whereSql,
-            $params
-        )['total'] ?? 0));
+        if ($groupSearch !== '') {
+            $groupWhere[] = '(momoid LIKE :group_search_momoid OR EXISTS (
+                SELECT 1 FROM momo_users AS matched
+                WHERE matched.user_id = :group_match_user_id
+                  AND matched.momoid = momo_users.momoid
+                  AND matched.send_momoid LIKE :group_search_send_momoid
+            ))';
+            $groupParams[':group_search_momoid'] = '%' . $groupSearch . '%';
+            $groupParams[':group_match_user_id'] = $userId;
+            $groupParams[':group_search_send_momoid'] = '%' . $groupSearch . '%';
+        }
 
-        $items = MomoUser::queryAll(
-            'SELECT * FROM momo_users WHERE ' . $whereSql . ' ORDER BY is_online DESC, updated_at DESC, id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
-            $params
-        );
+        $total = 0;
+        $items = array();
+        $totalPages = 1;
+        if ($withItems) {
+            $whereSql = implode(' AND ', $where);
+            $total = (int) ((MomoUser::queryOne(
+                'SELECT COUNT(*) AS total FROM momo_users WHERE ' . $whereSql,
+                $params
+            )['total'] ?? 0));
+
+            $items = MomoUser::queryAll(
+                'SELECT * FROM momo_users WHERE ' . $whereSql . ' ORDER BY is_online DESC, updated_at DESC, id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
+                $params
+            );
+            $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
+        }
 
         $groups = MomoUser::queryAll(
-            'SELECT momoid, COUNT(*) AS total_count, SUM(is_block = 1) AS blocked_count, SUM(is_friend = 1) AS friend_count, SUM(is_online = 1) AS online_count FROM momo_users WHERE user_id = :user_id GROUP BY momoid ORDER BY online_count DESC, MAX(updated_at) DESC',
-            array(':user_id' => $userId)
+            'SELECT momoid, COUNT(*) AS total_count, SUM(is_block = 1) AS blocked_count, SUM(is_friend = 1) AS friend_count, SUM(is_online = 1) AS online_count FROM momo_users WHERE ' . implode(' AND ', $groupWhere) . ' GROUP BY momoid ORDER BY online_count DESC, MAX(updated_at) DESC',
+            $groupParams
         );
 
         return array(
@@ -61,7 +90,7 @@ class AdminMomoService
                 'page' => $page,
                 'per_page' => $perPage,
                 'total' => $total,
-                'total_pages' => $total > 0 ? (int) ceil($total / $perPage) : 1,
+                'total_pages' => $totalPages,
             ),
         );
     }
