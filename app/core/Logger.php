@@ -104,8 +104,16 @@ class Logger
     /** 追加日志内容，必要时先压缩归档旧文件。 */
     protected static function append($file, $archiveDir, $content)
     {
+        if (!static::ensureDirectory(dirname($file)) || !static::ensureDirectory($archiveDir)) {
+            error_log('[logger] log directory not writable: ' . dirname($file));
+            return;
+        }
+
         static::rotateIfNeeded($file, $archiveDir);
-        file_put_contents($file, $content, FILE_APPEND | LOCK_EX);
+        if (@file_put_contents($file, $content, FILE_APPEND | LOCK_EX) === false) {
+            error_log('[logger] write failed: ' . $file);
+            return;
+        }
         static::rotateIfNeeded($file, $archiveDir);
     }
 
@@ -124,8 +132,12 @@ class Logger
             return;
         }
 
-        file_put_contents($archivePath, gzencode($content, 9), LOCK_EX);
-        file_put_contents($file, '');
+        if (@file_put_contents($archivePath, gzencode($content, 9), LOCK_EX) === false) {
+            error_log('[logger] archive write failed: ' . $archivePath);
+            return;
+        }
+
+        @file_put_contents($file, '');
     }
 
     /** 格式化为单条可读日志块。 */
@@ -219,8 +231,14 @@ class Logger
     /** 确保目录存在。 */
     protected static function ensureDirectory($directory)
     {
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+        if (is_dir($directory)) {
+            return true;
         }
+
+        if (@mkdir($directory, 0777, true) || is_dir($directory)) {
+            return true;
+        }
+
+        return false;
     }
 }

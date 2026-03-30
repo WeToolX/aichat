@@ -1,0 +1,10 @@
+# Runtime logs
+*.log
+
+# Storage runtime state
+storage/install/*
+storage/logs/*
+
+# Keep directory placeholders
+!storage/install/.gitkeep
+!storage/logs/.gitkeep
