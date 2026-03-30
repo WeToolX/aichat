@@ -94,7 +94,7 @@ return array(
         'allowed_ips' => env_list('DEPLOY_ALLOWED_IPS', array()),
     ),
     'roles' => array(
-        // 超级用户角色值
+        // 超级用户角色值/
         'super' => 1,
         // 普通用户角色值/
         'user' => 2,
