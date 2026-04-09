@@ -61,6 +61,7 @@ CREATE TABLE function_settings (
 -- 创建陌陌用户表
 CREATE TABLE momo_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL DEFAULT 1,
     momoid VARCHAR(20) NOT NULL,
     send_momoid VARCHAR(20) NOT NULL,
     chat_id VARCHAR(100) NOT NULL,
@@ -72,7 +73,7 @@ CREATE TABLE momo_users (
     last_message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_momoid_sendmomoid (momoid, send_momoid)
+    UNIQUE KEY unique_momoid_user (user_id, momoid, send_momoid)
 );
 
 -- 创建聊天消息表

@@ -7,11 +7,12 @@ TOKEN="${DEPLOY_WEBHOOK_TOKEN:-${X_DEPLOY_TOKEN:-}}"
 REMOTE="${DEPLOY_GIT_REMOTE:-origin}"
 COMMIT_MESSAGE=""
 SKIP_COMMIT="false"
+REQUEST_ONLY="false"
 
 usage() {
   cat <<'EOF'
 用法:
-  DEPLOY_WEBHOOK_TOKEN=xxx bash deploy_debug.sh [-m "提交说明"] [--skip-commit]
+  DEPLOY_WEBHOOK_TOKEN=xxx bash deploy_debug.sh [-m "提交说明"] [--skip-commit] [--request-only]
 
 说明:
   1. 如果工作区有变更:
@@ -19,6 +20,7 @@ usage() {
      - 提供后会执行 git add -A && git commit -m
   2. 然后执行 git push <remote> <current-branch>
   3. 最后调用服务器调试部署接口 /debug/deploy/pull
+  4. 使用 --request-only 时，只调用部署接口，不执行本地 Git 操作
 
 可选环境变量:
   DEPLOY_WEBHOOK_TOKEN   部署接口密钥，必填
@@ -28,6 +30,7 @@ usage() {
 参数:
   -m, --message          Git 提交说明
   --skip-commit          有未提交改动时不自动提交，直接报错退出
+  --request-only         只调用部署接口，不执行 commit/push
   -h, --help             显示帮助
 EOF
 }
@@ -44,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-commit)
       SKIP_COMMIT="true"
+      shift
+      ;;
+    --request-only)
+      REQUEST_ONLY="true"
       shift
       ;;
     -h|--help)
@@ -63,35 +70,37 @@ if [[ -z "$TOKEN" ]]; then
   exit 1
 fi
 
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  echo "当前目录不是 Git 仓库" >&2
-  exit 1
-fi
-
-BRANCH="$(git branch --show-current)"
-if [[ -z "$BRANCH" ]]; then
-  echo "无法识别当前分支" >&2
-  exit 1
-fi
-
-if [[ -n "$(git status --porcelain)" ]]; then
-  if [[ "$SKIP_COMMIT" == "true" ]]; then
-    echo "工作区存在未提交改动，已按 --skip-commit 终止" >&2
+if [[ "${REQUEST_ONLY}" != "true" ]]; then
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "当前目录不是 Git 仓库" >&2
     exit 1
   fi
 
-  if [[ -z "$COMMIT_MESSAGE" ]]; then
-    echo "工作区存在未提交改动，请通过 -m 传入提交说明" >&2
+  BRANCH="$(git branch --show-current)"
+  if [[ -z "$BRANCH" ]]; then
+    echo "无法识别当前分支" >&2
     exit 1
   fi
 
-  echo "提交本地改动..."
-  git add -A
-  git commit -m "$COMMIT_MESSAGE"
-fi
+  if [[ -n "$(git status --porcelain)" ]]; then
+    if [[ "$SKIP_COMMIT" == "true" ]]; then
+      echo "工作区存在未提交改动，已按 --skip-commit 终止" >&2
+      exit 1
+    fi
 
-echo "推送分支 ${BRANCH} 到 ${REMOTE}..."
-git push "$REMOTE" "$BRANCH"
+    if [[ -z "$COMMIT_MESSAGE" ]]; then
+      echo "工作区存在未提交改动，请通过 -m 传入提交说明" >&2
+      exit 1
+    fi
+
+    echo "提交本地改动..."
+    git add -A
+    git commit -m "$COMMIT_MESSAGE"
+  fi
+
+  echo "推送分支 ${BRANCH} 到 ${REMOTE}..."
+  git push "$REMOTE" "$BRANCH"
+fi
 
 echo "调用部署接口 ${ENDPOINT} ..."
 TMP_RESPONSE="$(mktemp)"

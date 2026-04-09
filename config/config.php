@@ -88,6 +88,8 @@ return array(
         'token' => env_value('DEPLOY_WEBHOOK_TOKEN', ''),
         // 是否强制同步远端分支，忽略服务器本地已跟踪文件改动
         'force_sync' => env_bool('DEPLOY_FORCE_SYNC', true),
+        // 是否异步触发部署，避免请求等待 git 拉码导致超时
+        'async' => env_bool('DEPLOY_ASYNC', true),
         // Git 远端名称
         'remote' => env_value('DEPLOY_REMOTE', 'origin'),
         // 服务器执行的固定拉码命令，仅 force_sync=false 时使用

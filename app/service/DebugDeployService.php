@@ -35,6 +35,13 @@ class DebugDeployService
 
         $before = $this->runGitInfo('git rev-parse --short HEAD', $workdir);
         $branch = $this->runGitInfo('git branch --show-current', $workdir);
+
+        if (!empty($config['deploy']['async'])) {
+            $result = $this->dispatchAsync($config, $workdir, $branch, $before, $request);
+            $this->appendLog($request, $result);
+            return $result;
+        }
+
         $result = $this->deploy($config, $workdir, $branch);
         $after = $this->runGitInfo('git rev-parse --short HEAD', $workdir);
 
@@ -78,6 +85,57 @@ class DebugDeployService
         $result = $this->runCommand($command, $workdir);
         $result['command'] = $command;
         return $result;
+    }
+
+    /** 后台异步触发部署，立即返回排队结果。 */
+    protected function dispatchAsync(array $config, $workdir, $branch, $before, Request $request)
+    {
+        if (!empty($config['deploy']['force_sync'])) {
+            $command = $this->buildForceSyncCommand($config, $branch);
+        } else {
+            $command = trim((string) ($config['deploy']['pull_command'] ?? ''));
+            $this->assertSafeCommand($command);
+        }
+
+        $env = $this->commandEnv();
+        $logFile = $this->deployLogFile();
+        $shell = $this->buildBackgroundShell($command, $workdir, $env, $logFile, $request, $before, $branch);
+
+        $pid = null;
+        if (function_exists('exec')) {
+            $output = array();
+            $exitCode = 0;
+            exec($shell, $output, $exitCode);
+            if ($exitCode !== 0) {
+                throw new RuntimeException('后台部署任务派发失败', 500);
+            }
+            $pid = isset($output[0]) ? trim((string) $output[0]) : '';
+        } elseif (function_exists('proc_open')) {
+            $process = @proc_open(array('/bin/sh', '-lc', $shell), array(1 => array('pipe', 'w')), $pipes, $workdir, $env);
+            if (!is_resource($process)) {
+                throw new RuntimeException('后台部署任务派发失败', 500);
+            }
+            $pid = trim((string) stream_get_contents($pipes[1]));
+            fclose($pipes[1]);
+            proc_close($process);
+        } else {
+            throw new RuntimeException('服务器未开放 proc_open/exec，无法执行部署命令', 500);
+        }
+
+        return array(
+            'mode' => 'async',
+            'queued' => true,
+            'pid' => $pid,
+            'workdir' => $workdir,
+            'branch' => $branch,
+            'before_revision' => $before,
+            'after_revision' => '',
+            'changed' => null,
+            'command' => $command,
+            'exit_code' => 0,
+            'output' => '部署任务已进入后台执行，请稍后查看 deploy.log',
+            'log_file' => $logFile,
+        );
     }
 
     /** 校验当前请求是否允许访问。 */
@@ -146,6 +204,21 @@ class DebugDeployService
     /** 强制同步远端分支，覆盖服务器上已跟踪文件的本地修改。 */
     protected function forceSync(array $config, $workdir, $branch)
     {
+        $command = $this->buildForceSyncCommand($config, $branch);
+        list($fetchCommand, $resetCommand) = explode(' && ', $command, 2);
+        $fetchResult = $this->runCommand($fetchCommand, $workdir);
+        $resetResult = $this->runCommand($resetCommand, $workdir);
+
+        return array(
+            'command' => $command,
+            'exit_code' => 0,
+            'output' => trim($fetchResult['output'] . ($fetchResult['output'] !== '' && $resetResult['output'] !== '' ? PHP_EOL : '') . $resetResult['output']),
+        );
+    }
+
+    /** 拼装强制同步命令。 */
+    protected function buildForceSyncCommand(array $config, $branch)
+    {
         $remote = trim((string) ($config['deploy']['remote'] ?? 'origin'));
         if ($remote === '') {
             throw new RuntimeException('部署远端不能为空', 500);
@@ -157,15 +230,7 @@ class DebugDeployService
 
         $fetchCommand = 'git fetch ' . escapeshellarg($remote) . ' --prune';
         $resetCommand = 'git reset --hard ' . escapeshellarg($remote . '/' . $branch);
-
-        $fetchResult = $this->runCommand($fetchCommand, $workdir);
-        $resetResult = $this->runCommand($resetCommand, $workdir);
-
-        return array(
-            'command' => $fetchCommand . ' && ' . $resetCommand,
-            'exit_code' => 0,
-            'output' => trim($fetchResult['output'] . ($fetchResult['output'] !== '' && $resetResult['output'] !== '' ? PHP_EOL : '') . $resetResult['output']),
-        );
+        return $fetchCommand . ' && ' . $resetCommand;
     }
 
     /** 执行 git 查询类命令，失败时只返回空字符串。 */
@@ -223,6 +288,56 @@ class DebugDeployService
         }
 
         return $env;
+    }
+
+    /** 后台执行时使用的部署日志文件。 */
+    protected function deployLogFile()
+    {
+        $preferredDir = BASE_PATH . '/storage/logs';
+        if (!$this->ensureDirectory($preferredDir) || !is_writable($preferredDir)) {
+            $preferredDir = rtrim(sys_get_temp_dir(), '/') . '/aichat_logs';
+            $this->ensureDirectory($preferredDir);
+        }
+
+        return rtrim($preferredDir, '/') . '/deploy.log';
+    }
+
+    /** 拼装后台执行 shell。 */
+    protected function buildBackgroundShell($command, $workdir, array $env, $logFile, Request $request, $before, $branch)
+    {
+        $prefix = '';
+        foreach (array('HTTP_PROXY', 'http_proxy', 'HTTPS_PROXY', 'https_proxy', 'NO_PROXY', 'no_proxy') as $key) {
+            if (isset($env[$key]) && $env[$key] !== '') {
+                $prefix .= $key . '=' . escapeshellarg($env[$key]) . ' ';
+            }
+        }
+
+        $header = sprintf(
+            "[%s] async deploy start ip=%s branch=%s before=%s command=%s\n",
+            date('Y-m-d H:i:s'),
+            $request->ip(),
+            $branch !== '' ? $branch : '-',
+            $before !== '' ? $before : '-',
+            $command
+        );
+
+        return 'printf %s ' . escapeshellarg($header)
+            . ' >> ' . escapeshellarg($logFile)
+            . ' && nohup /bin/sh -lc '
+            . escapeshellarg('cd ' . escapeshellarg($workdir) . ' && ' . $prefix . $command)
+            . ' >> ' . escapeshellarg($logFile)
+            . ' 2>&1 < /dev/null & echo $!'
+            ;
+    }
+
+    /** 确保目录存在。 */
+    protected function ensureDirectory($directory)
+    {
+        if (is_dir($directory)) {
+            return true;
+        }
+
+        return @mkdir($directory, 0777, true) || is_dir($directory);
     }
 
     /** 通过 proc_open 执行命令。 */
@@ -286,10 +401,7 @@ class DebugDeployService
     /** 记录部署日志。 */
     protected function appendLog(Request $request, array $payload)
     {
-        $dir = BASE_PATH . '/storage/logs';
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0777, true);
-        }
+        $logFile = $this->deployLogFile();
 
         $entry = '[' . date('Y-m-d H:i:s') . '] '
             . 'ip=' . $request->ip()
@@ -301,6 +413,6 @@ class DebugDeployService
             . PHP_EOL
             . ($payload['output'] !== '' ? $payload['output'] . PHP_EOL : '');
 
-        @file_put_contents($dir . '/deploy.log', $entry, FILE_APPEND | LOCK_EX);
+        @file_put_contents($logFile, $entry, FILE_APPEND | LOCK_EX);
     }
 }

@@ -7,6 +7,7 @@ class Logger
 
     protected static $requestContext = array();
     protected static $requestLogged = false;
+    protected static $resolvedBaseDir = null;
 
     /** 初始化日志目录。 */
     public static function boot()
@@ -105,7 +106,6 @@ class Logger
     protected static function append($file, $archiveDir, $content)
     {
         if (!static::ensureDirectory(dirname($file)) || !static::ensureDirectory($archiveDir)) {
-            error_log('[logger] log directory not writable: ' . dirname($file));
             return;
         }
 
@@ -201,7 +201,24 @@ class Logger
     /** 获取日志根目录。 */
     protected static function baseDir()
     {
-        return BASE_PATH . '/storage/logs';
+        if (static::$resolvedBaseDir !== null) {
+            return static::$resolvedBaseDir;
+        }
+
+        $preferred = BASE_PATH . '/storage/logs';
+        if (static::ensureDirectory($preferred) && is_writable($preferred)) {
+            static::$resolvedBaseDir = $preferred;
+            return static::$resolvedBaseDir;
+        }
+
+        $fallback = rtrim(sys_get_temp_dir(), '/') . '/aichat_logs';
+        if (static::ensureDirectory($fallback) && is_writable($fallback)) {
+            static::$resolvedBaseDir = $fallback;
+            return static::$resolvedBaseDir;
+        }
+
+        static::$resolvedBaseDir = $preferred;
+        return static::$resolvedBaseDir;
     }
 
     /** 请求日志文件。 */
@@ -232,11 +249,11 @@ class Logger
     protected static function ensureDirectory($directory)
     {
         if (is_dir($directory)) {
-            return true;
+            return is_writable($directory);
         }
 
         if (@mkdir($directory, 0777, true) || is_dir($directory)) {
-            return true;
+            return is_writable($directory);
         }
 
         return false;

@@ -27,6 +27,7 @@ class MomoService
         $this->ensureColumn('momo_users', 'last_message', "ALTER TABLE momo_users ADD COLUMN last_message TEXT");
         $this->ensureColumn('momo_users', 'last_interaction', "ALTER TABLE momo_users ADD COLUMN last_interaction BIGINT NOT NULL DEFAULT 0");
         $this->ensureColumn('chat_messages', 'user_id', "ALTER TABLE chat_messages ADD COLUMN user_id INT NOT NULL DEFAULT 1");
+        $this->dropIndexIfExists('momo_users', 'unique_momoid_sendmomoid');
 
         $this->ensureIndex(
             'momo_users',
@@ -61,6 +62,19 @@ class MomoService
         $stmt->closeCursor();
         if (!$exists) {
             $conn->exec($sql);
+        }
+    }
+
+    /** 如果仍存在老索引则先移除，避免跨用户唯一约束冲突。 */
+    protected function dropIndexIfExists($table, $indexName)
+    {
+        $conn = $this->db->getConn();
+        $quotedIndexName = $conn->quote($indexName);
+        $stmt = $conn->query("SHOW INDEX FROM {$table} WHERE Key_name = {$quotedIndexName}");
+        $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        if ($exists) {
+            $conn->exec("ALTER TABLE {$table} DROP INDEX {$indexName}");
         }
     }
 
