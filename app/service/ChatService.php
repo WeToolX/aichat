@@ -3,6 +3,11 @@
 /** 聊天服务，负责 chat_id 生成、历史消息整理与关键词回复判断。 */
 class ChatService
 {
+    public function __construct()
+    {
+        (new MomoService())->ensureSchema();
+    }
+
     /** 生成标准 chat_id。 */
     public function generateChatId($sendMomoid)
     {
@@ -10,7 +15,7 @@ class ChatService
     }
 
     /** 获取指定会话的历史消息。 */
-    public function getHistory($momoUserId, $userId)
+    public function getHistory($momoUserId, $userId, array $filters = array())
     {
         $momoUser = MomoUser::find($momoUserId);
 
@@ -18,7 +23,7 @@ class ChatService
             throw new RuntimeException('无权限查看此聊天记录');
         }
 
-        $messages = ChatMessage::historyByUser($momoUserId);
+        $messages = ChatMessage::historyByUser($momoUserId, $filters);
 
         $formatted = array();
         foreach ($messages as $message) {
@@ -26,6 +31,8 @@ class ChatService
                 'id' => $message['id'],
                 'content' => $message['message'],
                 'is_send' => $message['is_self'],
+                'is_self' => (int) ($message['is_self'] ?? 0),
+                'isSayHi' => (int) ($message['isSayHi'] ?? 0),
                 'message_time' => date('Y-m-d H:i:s', $this->millisecondToSecond($message['timestamp'] ?? 0)),
             );
         }

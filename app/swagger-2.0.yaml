@@ -426,6 +426,18 @@ paths:
           required: true
           type: integer
           description: 陌陌会话记录 ID
+        - name: is_self
+          in: query
+          required: false
+          type: integer
+          enum: [0, 1]
+          description: 按发送方筛选，0=自己发送，1=对方发送；不传则返回全部
+        - name: isSayHi
+          in: query
+          required: false
+          type: integer
+          enum: [0, 1]
+          description: 按消息类型筛选，1=招呼，0=普通会话；不传则返回全部
       responses:
         '200':
           description: 获取成功
@@ -840,6 +852,9 @@ definitions:
       m_type:
         type: integer
         description: 消息类型
+      isSayHi:
+        type: integer
+        description: 是否招呼消息，0/1
       messages:
         type: array
         description: import_messages 时上传的消息数组
@@ -862,9 +877,21 @@ definitions:
         items:
           type: object
           properties:
+            send_momoid:
+              type: string
+              description: 会话账号，对应 send_momoid
+            send_id:
+              type: string
+              description: 会话账号兼容字段，同 send_momoid
             陌陌号:
               type: string
               description: 会话账号，对应 send_momoid
+            messages:
+              type: array
+              description: 该账号的消息数组，兼容新字段名
+              items:
+                type: object
+                additionalProperties: true
             massage:
               type: array
               description: 该账号的消息数组
@@ -941,6 +968,12 @@ definitions:
       is_send:
         type: integer
         description: 是否自己发送
+      is_self:
+        type: integer
+        description: 原始发送方向字段，0=自己发送，1=对方发送
+      isSayHi:
+        type: integer
+        description: 是否招呼消息，1=招呼，0=普通消息
       message_time:
         type: string
         description: 格式化时间

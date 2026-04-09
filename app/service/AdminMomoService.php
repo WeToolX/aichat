@@ -15,6 +15,9 @@ class AdminMomoService
         $momoid = trim((string) ($filters['momoid'] ?? ''));
         $search = trim((string) ($filters['search'] ?? ''));
         $groupSearch = trim((string) ($filters['group_search'] ?? ''));
+        $isSayHi = $filters['isSayHi'] ?? '';
+        $isSelf = $filters['is_self'] ?? '';
+        $onlineStatus = trim((string) ($filters['online_status'] ?? ''));
         $withItems = (int) ($filters['with_items'] ?? 1) === 1;
         $page = max(1, (int) ($filters['page'] ?? 1));
         $perPage = max(1, min(100, (int) ($filters['per_page'] ?? 20)));
@@ -43,6 +46,21 @@ class AdminMomoService
             }
         }
 
+        if ($onlineStatus !== '' && $onlineStatus !== 'all') {
+            $where[] = 'is_online = :is_online';
+            $params[':is_online'] = $onlineStatus === 'online' ? 1 : 0;
+        }
+
+        if ($isSayHi !== '' && $isSayHi !== null) {
+            $where[] = 'EXISTS (SELECT 1 FROM chat_messages cm WHERE cm.momo_user_id = momo_users.id AND cm.user_id = momo_users.user_id AND cm.isSayHi = :filter_isSayHi)';
+            $params[':filter_isSayHi'] = (int) $isSayHi;
+        }
+
+        if ($isSelf !== '' && $isSelf !== null) {
+            $where[] = 'EXISTS (SELECT 1 FROM chat_messages cm WHERE cm.momo_user_id = momo_users.id AND cm.user_id = momo_users.user_id AND cm.is_self = :filter_is_self)';
+            $params[':filter_is_self'] = (int) $isSelf;
+        }
+
         if ($groupSearch !== '') {
             $groupWhere[] = '(momoid LIKE :group_search_momoid OR EXISTS (
                 SELECT 1 FROM momo_users AS matched
@@ -66,7 +84,10 @@ class AdminMomoService
             )['total'] ?? 0));
 
             $items = MomoUser::queryAll(
-                'SELECT * FROM momo_users WHERE ' . $whereSql . ' ORDER BY is_online DESC, updated_at DESC, id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
+                'SELECT momo_users.*, 
+                    (SELECT cm.isSayHi FROM chat_messages cm WHERE cm.momo_user_id = momo_users.id AND cm.user_id = momo_users.user_id ORDER BY cm.timestamp DESC, cm.id DESC LIMIT 1) AS isSayHi,
+                    (SELECT cm.is_self FROM chat_messages cm WHERE cm.momo_user_id = momo_users.id AND cm.user_id = momo_users.user_id ORDER BY cm.timestamp DESC, cm.id DESC LIMIT 1) AS is_self
+                 FROM momo_users WHERE ' . $whereSql . ' ORDER BY is_online DESC, updated_at DESC, id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
                 $params
             );
             $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;

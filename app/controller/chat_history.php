@@ -9,7 +9,16 @@ class ChatHistoryController extends BaseController
         try {
             $momoUserId = (int) $this->request()->query('momo_user_id', 0);
             $this->requirePositiveInt($momoUserId, '缺少必要参数');
-            $messages = (new ChatService())->getHistory($momoUserId, $this->user()['id']);
+            $filters = array();
+            $rawIsSelf = $this->request()->query('is_self', null);
+            $rawIsSayHi = $this->request()->query('isSayHi', null);
+            if ($rawIsSelf !== null && $rawIsSelf !== '') {
+                $filters['is_self'] = (int) $rawIsSelf;
+            }
+            if ($rawIsSayHi !== null && $rawIsSayHi !== '') {
+                $filters['isSayHi'] = (int) $rawIsSayHi;
+            }
+            $messages = (new ChatService())->getHistory($momoUserId, $this->user()['id'], $filters);
             response(true, $messages, '获取聊天记录成功', 200);
         } catch (RuntimeException $e) {
             $code = $e->getCode();

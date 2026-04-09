@@ -20,9 +20,19 @@ class ChatMessage extends BaseModel
     }
 
     /** 查询指定会话的完整历史。 */
-    public static function historyByUser($momoUserId)
+    public static function historyByUser($momoUserId, array $filters = array())
     {
-        return static::findAllBy(static::conversationWhere($momoUserId), 'id, message, is_self, timestamp', 'timestamp ASC');
+        $where = static::conversationWhere($momoUserId);
+
+        if (array_key_exists('is_self', $filters) && $filters['is_self'] !== null && $filters['is_self'] !== '') {
+            $where['is_self'] = (int) $filters['is_self'];
+        }
+
+        if (array_key_exists('isSayHi', $filters) && $filters['isSayHi'] !== null && $filters['isSayHi'] !== '') {
+            $where['isSayHi'] = (int) $filters['isSayHi'];
+        }
+
+        return static::findAllBy($where, 'id, message, is_self, isSayHi, timestamp', 'timestamp ASC');
     }
 
     /** 查询会话最后一条消息。 */

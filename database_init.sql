@@ -80,8 +80,10 @@ CREATE TABLE momo_users (
 CREATE TABLE chat_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     momo_user_id INT NOT NULL,
+    user_id INT NOT NULL DEFAULT 1,
     message TEXT NOT NULL,
     is_self TINYINT(1) NOT NULL,
+    isSayHi TINYINT(1) NOT NULL DEFAULT 0,
     timestamp BIGINT NOT NULL,
     m_type TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

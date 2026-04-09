@@ -27,6 +27,7 @@ class MomoService
         $this->ensureColumn('momo_users', 'last_message', "ALTER TABLE momo_users ADD COLUMN last_message TEXT");
         $this->ensureColumn('momo_users', 'last_interaction', "ALTER TABLE momo_users ADD COLUMN last_interaction BIGINT NOT NULL DEFAULT 0");
         $this->ensureColumn('chat_messages', 'user_id', "ALTER TABLE chat_messages ADD COLUMN user_id INT NOT NULL DEFAULT 1");
+        $this->ensureColumn('chat_messages', 'isSayHi', "ALTER TABLE chat_messages ADD COLUMN isSayHi TINYINT(1) NOT NULL DEFAULT 0");
         $this->dropIndexIfExists('momo_users', 'unique_momoid_sendmomoid');
 
         $this->ensureIndex(
@@ -104,6 +105,7 @@ class MomoService
         $isFriend = ((int) ($data['is_friend'] ?? 0) === 1) ? 1 : 0;
         $messageTime = !empty($data['message_time']) ? (int) $data['message_time'] : round(microtime(true) * 1000);
         $mType = (int) ($data['m_type'] ?? 0);
+        $isSayHi = (int) ($data['isSayHi'] ?? 0) === 1 ? 1 : 0;
 
         $record = $this->findOwnedMomoUser($momoid, $sendMomoid, $user, $targetId);
         if (!$record) {
@@ -117,7 +119,7 @@ class MomoService
             ));
             $record = $this->fetchUserFullById($createdId);
             if ($content !== '') {
-                $this->insertChatMessageIfMissing($record['id'], $content, $isSend, $messageTime, $mType);
+                $this->insertChatMessageIfMissing($record['id'], $content, $isSend, $messageTime, $mType, $isSayHi);
             }
         }
 
@@ -131,7 +133,7 @@ class MomoService
         $update = $this->buildUpdatePayload($record, $data, $content, $isSend, $isFriend, $mType);
 
         if ($content !== '') {
-            $this->insertChatMessageIfMissing($record['id'], $content, $isSend, $messageTime, $mType);
+            $this->insertChatMessageIfMissing($record['id'], $content, $isSend, $messageTime, $mType, $isSayHi);
         }
 
         if (!$this->hasChanges($record, $update)) {
@@ -338,7 +340,7 @@ class MomoService
                 $stats['is_friend'] = 1;
             }
 
-            if ($this->insertChatMessageIfMissing($momoUserId, $parsed['content'], $parsed['is_self'], $parsed['timestamp'], $parsed['m_type'])) {
+            if ($this->insertChatMessageIfMissing($momoUserId, $parsed['content'], $parsed['is_self'], $parsed['timestamp'], $parsed['m_type'], $parsed['isSayHi'])) {
                 $stats['imported']++;
             } else {
                 $stats['skipped']++;
@@ -362,12 +364,27 @@ class MomoService
                 'content' => $content,
                 'is_friend' => $this->containsFriendMarker($content),
                 'is_self' => (($item['m_receive'] ?? '1') === '1') ? 1 : 0,
+                'isSayHi' => $this->extractSayHiFlag($msgInfo, $item),
                 'timestamp' => is_numeric($item['m_time'] ?? null) ? (int) $item['m_time'] : round(microtime(true) * 1000),
                 'm_type' => is_numeric($item['m_type'] ?? null) ? (int) $item['m_type'] : 0,
             );
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    /** 尝试从消息体中识别是否为招呼消息。 */
+    protected function extractSayHiFlag(array $msgInfo, array $item)
+    {
+        if (isset($msgInfo['sayhi'])) {
+            return ((int) $msgInfo['sayhi'] === 1) ? 1 : 0;
+        }
+
+        if (isset($item['isSayHi'])) {
+            return ((int) $item['isSayHi'] === 1) ? 1 : 0;
+        }
+
+        return 0;
     }
 
     /** 判断消息是否包含“已成为好友”标记。 */
@@ -476,7 +493,7 @@ class MomoService
     }
 
     /** 插入消息前先做去重判断。 */
-    protected function insertChatMessageIfMissing($momoUserId, $content, $isSelf, $timestamp, $mType)
+    protected function insertChatMessageIfMissing($momoUserId, $content, $isSelf, $timestamp, $mType, $isSayHi = 0)
     {
         if (ChatMessage::existsDuplicate($momoUserId, $content, $isSelf, $timestamp)) {
             return false;
@@ -492,6 +509,7 @@ class MomoService
             'momo_user_id' => (int) $conversation['id'],
             'message' => $content,
             'is_self' => $isSelf,
+            'isSayHi' => (int) $isSayHi === 1 ? 1 : 0,
             'timestamp' => $timestamp,
             'm_type' => $mType,
         ));

@@ -17,7 +17,9 @@ $extraHead = <<<'HTML'
     .panel-header { display: grid; gap: 4px; }
     .panel-header p { margin-bottom: 5px; }
     .toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 0; flex-wrap: wrap; }
-    .toolbar input { width: min(340px, 100%); }
+    .toolbar input { width: min(280px, 100%); }
+    .toolbar select { width: auto; min-width: 120px; }
+    .toolbar-controls { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
     .field label { display: block; margin-bottom: 4px; font-weight: var(--font-weight-medium); }
     .field input { font: inherit; }
     .field input[readonly] { background: rgba(255, 255, 255, 0.2); color: var(--gray-dark); }
@@ -98,7 +100,19 @@ admin_shell_start($ctx, '后台管理系统 - 会话明细', '会话明细', '�
                     <h2>会话明细</h2>
                     <p id="momoid-hint">主账号：<?php echo admin_shell_escape($initialMomoid); ?></p>
                 </div>
-                <input id="search-input" type="search" placeholder="搜索 send_momoid">
+                <div class="toolbar-controls">
+                    <select id="type-filter">
+                        <option value="all">全部</option>
+                        <option value="1">招呼</option>
+                        <option value="0">会话</option>
+                    </select>
+                    <select id="online-filter">
+                        <option value="all">全部</option>
+                        <option value="online">在线</option>
+                        <option value="offline">离线</option>
+                    </select>
+                    <input id="search-input" type="search" placeholder="搜索 send_momoid">
+                </div>
             </div>
         </div>
         <div class="panel-body stack">
@@ -120,7 +134,7 @@ $extraScript = <<<'HTML'
         const boot = window.ADMIN_BOOTSTRAP || {};
         const token = boot.token || '';
         const initialMomoid = __INITIAL_MOMOID__;
-        const state = { data: { items: [], pagination: {} }, search: '', page: 1, perPage: 10, momoid: initialMomoid };
+        const state = { data: { items: [], pagination: {} }, search: '', page: 1, perPage: 10, momoid: initialMomoid, isSayHi: 'all', onlineStatus: 'all' };
         const nodes = {
             message: document.getElementById('message-box'),
             form: document.getElementById('momo-form'),
@@ -133,6 +147,8 @@ $extraScript = <<<'HTML'
             isFriend: document.getElementById('is_friend'),
             title: document.getElementById('form-title'),
             search: document.getElementById('search-input'),
+            typeFilter: document.getElementById('type-filter'),
+            onlineFilter: document.getElementById('online-filter'),
             list: document.getElementById('momo-list'),
             reset: document.getElementById('reset-btn'),
             paginationSummary: document.getElementById('pagination-summary'),
@@ -202,9 +218,10 @@ $extraScript = <<<'HTML'
                         </div>
                         <div class="momo-side">
                             <div class="tags">
-                                ${Number(item.is_online || 0) === 1 ? '<span class="tag online">在线</span>' : ''}
+                                ${Number(item.is_online || 0) === 1 ? '<span class="tag online">在线</span>' : '<span class="tag">离线</span>'}
                                 ${Number(item.is_friend || 0) === 1 ? '<span class="tag friend">好友</span>' : ''}
                                 ${Number(item.is_block || 0) === 1 ? '<span class="tag blocked">拉黑</span>' : ''}
+                                ${Number(item.isSayHi || 0) === 1 ? '<span class="tag">招呼</span>' : '<span class="tag">会话</span>'}
                             </div>
                             <div class="actions">
                                 <button type="button" class="btn btn-primary" data-edit="${item.id}">编辑</button>
@@ -234,6 +251,8 @@ $extraScript = <<<'HTML'
             params.set('page', String(state.page));
             params.set('per_page', String(state.perPage));
             if (state.search) params.set('search', state.search);
+            if (state.isSayHi !== 'all') params.set('isSayHi', state.isSayHi);
+            if (state.onlineStatus !== 'all') params.set('online_status', state.onlineStatus);
             state.data = await request(`../admin/momo?${params.toString()}`);
             render();
         }
@@ -276,6 +295,16 @@ $extraScript = <<<'HTML'
         nodes.reset.addEventListener('click', () => { clearMessage(); resetForm(); });
         nodes.search.addEventListener('input', (event) => {
             state.search = event.target.value.trim();
+            state.page = 1;
+            loadData().catch((error) => showMessage('error', error.message));
+        });
+        nodes.typeFilter.addEventListener('change', (event) => {
+            state.isSayHi = event.target.value;
+            state.page = 1;
+            loadData().catch((error) => showMessage('error', error.message));
+        });
+        nodes.onlineFilter.addEventListener('change', (event) => {
+            state.onlineStatus = event.target.value;
             state.page = 1;
             loadData().catch((error) => showMessage('error', error.message));
         });
